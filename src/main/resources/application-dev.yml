@@ -39,13 +39,13 @@ mybatis-plus:
   check-config-location: true
 
 wx:
-  appId: wx7a64449dc9be667d
-  appSecret: 8e1b1896e3ef8a11b8ad7f02c5dcdacc
+  appId: wx8c2e6597baaa5d7f
+  appSecret: 9d09528df6016e26afb0b215cb2ab0c5
 logging:
   level: debug
 server:
   port: 8088
-  #servlet-path: /rest
+  servlet-path: /rest
 # Redis数据库索引（默认为0）
 #spring.redis.database=0
 # Redis服务器地址
