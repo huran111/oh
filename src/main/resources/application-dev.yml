@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: tykj
+  messages:
+    encoding: utf-8
+    basename: i18n.messages
+  datasource:
+    password: root
+    username: root
+    url: jdbc:mysql://120.78.184.26:3306/wx-yc?useUnicode=true&characterEncoding=utf8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+
+mybatis-plus:
+  mapper-locations: classpath*:com.tykj/*/mapper/**Mapper.xml
+  typeAliasesPackage: com.tykj.entity
+  global-config:
+    refresh: true
+    db-config:
+      db-type: mysql
+#      id-type: uuid
+  configuration:
+    caches: false
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  check-config-location: true
+
+wx:
+  appId: wx7a64449dc9be667d
+  appSecret: 8e1b1896e3ef8a11b8ad7f02c5dcdacc
+logging:
+  level: debug
+server:
+  port: 8088
+  #servlet-path: /rest
+# Redis数据库索引（默认为0）
+#spring.redis.database=0
+# Redis服务器地址
+#spring.redis.host=172.31.19.222
+# Redis服务器连接端口
+#spring.redis.port=6379
+# Redis服务器连接密码（默认为空）
+#spring.redis.password=
+# 连接池最大连接数（使用负值表示没有限制）
+#spring.redis.pool.max-active=8
+# 连接池最大阻塞等待时间（使用负值表示没有限制）
+#spring.redis.pool.max-wait=-1
+# 连接池中的最大空闲连接
+#spring.redis.pool.max-idle=8
+# 连接池中的最小空闲连接
+#spring.redis.pool.min-idle=0
+# 连接超时时间（毫秒）
+#spring.redis.timeout=0
