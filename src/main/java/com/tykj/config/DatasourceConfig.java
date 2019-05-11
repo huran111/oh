@@ -15,7 +15,9 @@ import org.springframework.core.env.Environment;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-
+/**
+ * @author  huran
+ */
 @Configuration
 public class DatasourceConfig implements EnvironmentAware {
     private RelaxedPropertyResolver propertyResolver;

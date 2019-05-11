@@ -25,7 +25,7 @@ public class CodeGenerator {
     public static Map<String,List<String>> moduleTableMap = Maps.newHashMap();
 
     static{
-        moduleTableMap.put("wx", Arrays.asList("wx_user"));
+        moduleTableMap.put("wx", Arrays.asList("wx_qrcode"));
     }
 
     public static void main(String[] args) {

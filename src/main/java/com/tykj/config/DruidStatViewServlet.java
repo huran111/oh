@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
-
+/**
+ * @author  huran
+ */
 @WebServlet(urlPatterns = "/druid/*", initParams = {@WebInitParam(name = "allow", value = "127.0.0.1"), // IP白名单 默认所有可以访问
         @WebInitParam(name = "deny", value = "192.168.1.73"), // IP黑名单 (存在共同时，deny优先于allow)
         @WebInitParam(name = "loginUsername", value = "root"),

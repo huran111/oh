@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.annotation.WebInitParam;
-
+/**
+ * @author  huran
+ */
 @WebFilter(filterName = "druidWebStatFilter", urlPatterns = "/*",
         initParams = {@WebInitParam(name = "exclusions", value = "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*")})
 public class DuriStatFilter extends WebStatFilter {

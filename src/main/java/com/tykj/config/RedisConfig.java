@@ -12,7 +12,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-
+/**
+ * @author  huran
+ */
 //@Configuration
 //@EnableCaching
 public class RedisConfig  extends CachingConfigurerSupport {

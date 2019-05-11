@@ -2,7 +2,9 @@ package com.tykj.wx.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-
+/**
+ * @author  huran
+ */
 @Data
 @Accessors(chain = true)
 public class UserInfoDTO {

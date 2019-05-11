@@ -1,22 +1,35 @@
 package com.tykj.common;
 
-
+/**
+ * @author  huran
+ */
 public enum ApiCode {
-    SUCCESS(10,"操作成功"),
-    ERROR(500,"操作失败"),
-    LONG_SUCCESS(200,"登陆成功"),
+    OPERATOR_SUCCESS(200,"操作成功"),
+    ERROR(500,"系统异常"),
+    LONG_SUCCESS(200,"成功"),
+    LOGOUT_SUCCESS(200,"退出成功"),
     NOT_ROLE(13,"无角色"),
 
     NOT_LOGIN(12,"未登录"),
     EMPTY_PARAM(0,"空数据"),
     SESSION_KEY_FAIL(1,"获取sessionKey失败"),
-    CHECK_FAIL(2,"校验失败");
+    CHECK_FAIL(2,"校验失败"),
+    BINDING(200,1,"已绑定"),
+    NOT_BINDING(200,0,"未绑定"),
+    BINDING_SUCCESS(200,"绑定成功");
     private int code;
     private String desc;
+    private int status;
 
-    ApiCode(int code, String desc){
+    ApiCode(int status,int code, String desc){
         this.code = code;
         this.desc = desc;
+        this.status=status;
+    }
+    ApiCode(int status , String desc){
+        this.code = code;
+        this.desc = desc;
+        this.status=status;
     }
 
     public int getCode() {
@@ -33,5 +46,13 @@ public enum ApiCode {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
