@@ -32,11 +32,35 @@ public class User extends BaseEntity {
      */
     @TableId(value = "id", type = IdType.UUID)
     private String id;
-
     @TableField("openId")
     private String openId;
     @TableField("create_time")
     private Date createTime;
+    @TableField("nick_name")
+    private String nickName;
+    @TableField("gender")
+    private Integer gender;
+    @TableField("city")
+    private String city;
+    @TableField("province")
+    private String province;
+    @TableField("country")
+    private String country;
+    @TableField("avatar_url")
+    private String avatarUrl;
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", openId='" + openId + '\'' +
+                ", createTime=" + createTime +
+                ", nickName='" + nickName + '\'' +
+                ", gender='" + gender + '\'' +
+                ", city='" + city + '\'' +
+                ", province='" + province + '\'' +
+                ", country='" + country + '\'' +
+                ", avatarUrl='" + avatarUrl + '\'' +
+                '}';
+    }
 }
