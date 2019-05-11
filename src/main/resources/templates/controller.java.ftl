@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sucl.sbmp.core.annotation.QueryCondition;
-import com.sucl.sbmp.core.annotation.QueryPage;
 import ${package.Entity}.${entity};
 import ${package.Service}.${table.serviceName};
 
