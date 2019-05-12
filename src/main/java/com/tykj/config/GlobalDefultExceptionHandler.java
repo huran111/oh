@@ -1,8 +1,10 @@
 package com.tykj.config;
 
+import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,7 +31,12 @@ public class GlobalDefultExceptionHandler {
         if (e instanceof BusinessException) {
             log.error(e.getMessage());
             BusinessException businessException = (BusinessException) e;
-            return new ApiResponse(businessException.getApiCode(),businessException.getMessage());
+            return new ApiResponse(ApiCode.EMPTY_PARAM,businessException.getMessage());
+        }
+        if(e instanceof MethodArgumentNotValidException){
+            log.error(e.getMessage());
+            MethodArgumentNotValidException validException = (MethodArgumentNotValidException) e;
+            return new ApiResponse(ApiCode.EMPTY_PARAM,validException.getMessage());
         }
         //未知错误
         return ApiResponse.error();
