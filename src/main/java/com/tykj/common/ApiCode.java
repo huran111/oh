@@ -11,9 +11,9 @@ public enum ApiCode {
     NOT_ROLE(13,"无角色"),
 
     NOT_LOGIN(12,"未登录"),
-    EMPTY_PARAM(0,"空数据"),
-    SESSION_KEY_FAIL(1,"获取sessionKey失败"),
-    CHECK_FAIL(2,"校验失败"),
+    EMPTY_PARAM(200,0,"空数据"),
+    SESSION_KEY_FAIL(200,2,"获取sessionKey失败"),
+    CHECK_FAIL(200,1,"校验失败"),
     BINDING(200,1,"已绑定"),
     NOT_BINDING(200,0,"未绑定"),
     BINDING_SUCCESS(200,"绑定成功");
