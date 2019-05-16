@@ -1,5 +1,6 @@
 package com.tykj.config;
 
+import com.alibaba.druid.filter.config.ConfigTools;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
@@ -32,11 +33,13 @@ public class DatasourceConfig implements EnvironmentAware {
 
     @Primary
     @Bean
-    public DataSource writeDataSource() {
+    public DataSource writeDataSource() throws Exception {
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setUrl(propertyResolver.getProperty("url"));
+
         dataSource.setUsername(propertyResolver.getProperty("username"));
-        dataSource.setPassword(propertyResolver.getProperty("password"));
+        dataSource.setPassword(ConfigTools.decrypt(propertyResolver.getProperty("password")));
+        System.out.println(propertyResolver.getProperty("password"));
         dataSource.setDriverClassName(propertyResolver.getProperty("driverClassName"));
         dataSource.setInitialSize(Integer.parseInt(propertyResolver.getProperty("initialSize")));
         dataSource.setMaxActive(Integer.parseInt(propertyResolver.getProperty("maxActive")));

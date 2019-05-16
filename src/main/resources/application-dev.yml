@@ -5,8 +5,8 @@ spring:
     encoding: utf-8
     basename: i18n.messages
   datasource:
-    password: root
-    username:  rootOH123456
+    username: root
+    password: iO3KQS9iFUOUmV0HqZUIHsko/I6v3jzf4G2inRgo1Sd2PcNoG1JDPN7hkbS3kEaBjU1DhirKaODVAQEvnqfi5g==
     url: jdbc:mysql://62.234.151.151:3306/oh-xiaochengxu?useUnicode=true&characterEncoding=utf8&useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
