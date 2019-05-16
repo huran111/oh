@@ -15,6 +15,8 @@ import com.tykj.wx.service.ITmpQrcodeService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ import com.tykj.core.web.BaseController;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -40,6 +43,8 @@ import java.util.List;
 @RequestMapping("rest/wx/tmp/qrcode")
 public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQrcode> {
     @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
     private ITmpQrcodeService tmpQrcodeService;
 
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
@@ -52,8 +57,8 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 throw new BusinessException(ApiCode.EMPTY_PARAM, fieldError.getDefaultMessage());
             });
         }
-        List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getOpenId, userInfoDTO.getOpenId()));
-        if (CollectionUtils.isNotEmpty(tmpQrcodes) && tmpQrcodes.size() > 0) {
+        String openId=stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
+        if(StringUtils.isNotEmpty(openId)){
             return new ApiResponse(ApiCode.REQUEST_SUCCESS, "您已生成体验码，请稍后再试");
         }
         TmpQrcode tmpQrcode = new TmpQrcode();
@@ -65,6 +70,7 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 .setPhoneNum(userInfoDTO.getPhone()).setQrParam(userInfoDTO.getQrParam());
         //生成带参数的二维码
         tmpQrcodeService.saveOrUpdate(tmpQrcode);
+        stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(),userInfoDTO.getQrParam(),5L,TimeUnit.MINUTES);
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
     }
 
@@ -76,10 +82,10 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     @ApiOperation(value = "查看我的挪车码-体验", notes = "查看我的挪车码-体验")
     @Transactional(rollbackFor = Exception.class)
     @GetMapping(value = "toViewQrParam")
-    public ApiResponse toViewQrParam(@RequestParam(value = "code") String code) {
-        LoginSessionKeyDTO loginSessionKeyDTO = WxUtils.getOpenId(code).getData();
+    public ApiResponse toViewQrParam(@RequestParam(value = "openId") String openId) {
+      //  LoginSessionKeyDTO loginSessionKeyDTO = WxUtils.getOpenId(code).getData();
         QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<>();
-        qrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, loginSessionKeyDTO.getOpenid());
+        qrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
         List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(qrcodeQueryWrapper);
         if (CollectionUtils.isNotEmpty(tmpQrcodes)) {
             return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcodes);
