@@ -6,7 +6,7 @@ spring:
     basename: i18n.messages
   datasource:
     password: root
-    username: root123456&
+    username:  rootOH123456
     url: jdbc:mysql://62.234.151.151:3306/oh-xiaochengxu?useUnicode=true&characterEncoding=utf8&useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
