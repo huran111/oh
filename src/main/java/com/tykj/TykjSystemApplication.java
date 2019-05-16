@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 //@EnableCaching
 @ServletComponentScan(basePackages = {"com.tykj.config"})
-
 @MapperScan("com.tykj.*.mapper")
 @EnableTransactionManagement
 @SpringBootApplication

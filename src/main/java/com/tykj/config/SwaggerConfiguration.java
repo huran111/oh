@@ -20,7 +20,7 @@ import static com.google.common.base.Predicates.or;
  **/
 @Configuration
 @EnableSwagger2
-@ConditionalOnProperty(prefix = "swagger.switch",value = "true")
+//@ConditionalOnProperty(prefix = "swagger.switch",value = "true")
 public class SwaggerConfiguration {
     @Bean
     public Docket createRestApi() {

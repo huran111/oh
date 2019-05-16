@@ -26,6 +26,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println(">>>>>>>>>>在请求处理之前进行调用（Controller方法调用之前）");
+        System.out.println(request.getMethod());
+        System.out.println(request.getRequestURI());
+        System.out.println(request.getRequestURL());
+
         String sessionId = request.getParameter(SysConstant.SESSION_KEY);
         IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
         String sessionJson = accessTokenCache.get("wxa:session:" + sessionId);

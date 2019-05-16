@@ -16,7 +16,7 @@ public class MyWebAppConfigurer extends WebMvcConfigurerAdapter {
         //添加登陆拦截器
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/", "/rest/login", "/rest/logout", "/rest/wx/qrcode/**")
+                .excludePathPatterns("/", "/rest/wx/login", "/rest/wx/logout", "/rest/wx/**")
                 .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/error", "/swagger-ui.html/**");
 
         super.addInterceptors(registry);

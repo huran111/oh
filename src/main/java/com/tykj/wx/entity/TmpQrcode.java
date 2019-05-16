@@ -3,13 +3,14 @@ package com.tykj.wx.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.tykj.core.BaseEntity;
+
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 /**
  * <p>
@@ -17,49 +18,49 @@ import java.util.Date;
  * </p>
  *
  * @author huran
- * @since 2019-05-11
+ * @since 2019-05-12
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("wx_qrcode")
-public class Qrcode extends BaseEntity {
+@TableName("wx_tmp_qrcode")
+public class TmpQrcode extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 主键
+     */
     @TableId(value = "id", type = IdType.UUID)
     private String id;
 
     /**
-     * 二维码参数 唯一的
+     * 绑定小程序的id 有效期
      */
-    @TableField("qr_param")
-    private String qrParam;
-    @TableField("open_id")
-
+    @TableField("openId")
     private String openId;
-    @TableField("img_url")
-    private String imgUrl;
-    /**
-     * 是否绑定 0未绑定1 绑定
-     */
-    @TableField("is_binding")
-    private String isBinding;
-    @TableField("is_switch")
-    private String isSwitch;
-    /**
-     * 手机号
-     */
-    @TableField("phone_num")
-    private String phoneNum;
 
     /**
-     * 车牌号
+     * 创建时间
      */
-    @TableField("plate_num")
-    private String plateNum;
-
     @TableField("create_time")
     private Date createTime;
+
+
+    /**
+     * 二维码地址
+     */
+    @TableField("img_url")
+    private String imgUrl;
+    @TableField("is_switch")
+    private String isSwitch;
+    @TableField("qr_param")
+    private String qrParam;
+    @TableField("phone_num")
+
+    private String phoneNum;
+    @TableField("plate_num")
+
+    private String plateNum;
 
 }

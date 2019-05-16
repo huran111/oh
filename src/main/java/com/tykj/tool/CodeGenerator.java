@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 生成文件
+ */
 public class CodeGenerator {
     /**
      * 配置模块与表
@@ -25,7 +28,7 @@ public class CodeGenerator {
     public static Map<String,List<String>> moduleTableMap = Maps.newHashMap();
 
     static{
-        moduleTableMap.put("wx", Arrays.asList("wx_qrcode"));
+        moduleTableMap.put("wx", Arrays.asList("wx_tmp_qrcode"));
     }
 
     public static void main(String[] args) {

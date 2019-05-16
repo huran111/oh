@@ -25,4 +25,13 @@ public class BusinessException extends RuntimeException {
     public void setApiCode(ApiCode apiCode) {
         this.apiCode = apiCode;
     }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

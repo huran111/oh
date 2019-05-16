@@ -20,7 +20,6 @@ import com.tykj.wx.dto.AppIdDTO;
 import com.tykj.wx.dto.LoginSessionKeyDTO;
 import com.tykj.wx.entity.Qrcode;
 import com.tykj.wx.entity.User;
-import com.tykj.wx.properties.WxProperties;
 import com.tykj.wx.service.IQrcodeService;
 import com.tykj.wx.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ import java.util.Date;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "wx")
+@RequestMapping(value = "/rest/wx")
 public class WxaUserApiController extends WxaController {
 
 

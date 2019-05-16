@@ -1,6 +1,6 @@
 package com.tykj.wx.mapper;
 
-import com.tykj.wx.entity.Qrcode;
+import com.tykj.wx.entity.TmpQrcode;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,9 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
     * </p>
 *
 * @author huran
-* @since 2019-05-11
+* @since 2019-05-12
 */
-
-public interface QrcodeMapper extends BaseMapper<Qrcode> {
+public interface TmpQrcodeMapper extends BaseMapper<TmpQrcode> {
 
 }
