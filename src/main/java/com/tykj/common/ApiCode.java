@@ -9,6 +9,7 @@ public enum ApiCode {
     LONG_SUCCESS(200,"成功"),
     DELETE_SUCCESS(200,"删除成功"),
     LOGOUT_SUCCESS(200,"退出成功"),
+    OPERATOR_FAIL(500,"操作失败"),
     NOT_ROLE(13,"无角色"),
     REQUEST_SUCCESS(200,"请求成功"),
     NOT_LOGIN(12,"未登录"),
