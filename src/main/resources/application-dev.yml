@@ -51,3 +51,15 @@ server:
   port: 8088
 swagger:
   switch: true
+aliyun:
+  regionId: default
+  accessKeyId: LTAIzeiN5MvkPUs5
+  secret: 5fbtYPapp5EUro8uiJp6AUi4sZ1ktn
+  smsDomain: dysmsapi.aliyuncs.com
+  plDomain: dyplsapi.aliyuncs.com
+  version: 2017-05-25
+  signName: 欧海网络科技
+  templateCode: SMS_165410073
+  poolKey: FC100000069120648
+  bindAxn: BindAxn
+  sendSms: SendSms
