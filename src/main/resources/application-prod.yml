@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: tykj
+  messages:
+    encoding: utf-8
+    basename: i18n.messages
+  datasource:
+    username: root
+    password: iO3KQS9iFUOUmV0HqZUIHsko/I6v3jzf4G2inRgo1Sd2PcNoG1JDPN7hkbS3kEaBjU1DhirKaODVAQEvnqfi5g==
+    url: jdbc:mysql://62.234.151.151:3306/oh-xiaochengxu?useUnicode=true&characterEncoding=utf8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+  redis:
+    host: 62.234.151.151
+    port: 6379
+    database: 0
+    password: 123456
+mybatis-plus:
+  mapper-locations: classpath*:com.tykj/*/mapper/**Mapper.xml
+  typeAliasesPackage: com.tykj.entity
+  global-config:
+    refresh: true
+    db-config:
+      db-type: mysql
+#      id-type: uuid
+  configuration:
+    caches: false
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  check-config-location: true
+
+wx:
+  appId: wx8c2e6597baaa5d7f
+  appSecret: 9d09528df6016e26afb0b215cb2ab0c5
+logging:
+  level: debug
+server:
+  port: 8088
+swagger:
+  switch: false
+aliyun:
+  regionId: default
+  accessKeyId: LTAIzeiN5MvkPUs5
+  secret: 5fbtYPapp5EUro8uiJp6AUi4sZ1ktn
+  smsDomain: dysmsapi.aliyuncs.com
+  plDomain: dyplsapi.aliyuncs.com
+  version: 2017-05-25
+  signName: 欧海网络科技
+  templateCode: SMS_165410073
+  poolKey: FC100000069120648
+  bindAxn: BindAxn
+  sendSms: SendSms
