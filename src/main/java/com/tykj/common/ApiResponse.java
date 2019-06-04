@@ -25,13 +25,6 @@ public class ApiResponse<T> {
 
     }
 
-    public ApiResponse(ApiCode ApiCode, String msg) {
-        this.code = ApiCode.getCode();
-        this.msg = msg;
-        this.status = ApiCode.getStatus();
-
-    }
-
     public ApiResponse(ApiCode ApiCode, String msg, T data) {
         this.code = ApiCode.getCode();
         this.msg = msg;

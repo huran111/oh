@@ -39,7 +39,6 @@ public class DatasourceConfig implements EnvironmentAware {
 
         dataSource.setUsername(propertyResolver.getProperty("username"));
         dataSource.setPassword(ConfigTools.decrypt(propertyResolver.getProperty("password")));
-        System.out.println(propertyResolver.getProperty("password"));
         dataSource.setDriverClassName(propertyResolver.getProperty("driverClassName"));
         dataSource.setInitialSize(Integer.parseInt(propertyResolver.getProperty("initialSize")));
         dataSource.setMaxActive(Integer.parseInt(propertyResolver.getProperty("maxActive")));

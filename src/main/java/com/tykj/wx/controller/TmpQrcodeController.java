@@ -57,20 +57,28 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 throw new BusinessException(ApiCode.EMPTY_PARAM, fieldError.getDefaultMessage());
             });
         }
-        String openId=stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
-        if(StringUtils.isNotEmpty(openId)){
-            return new ApiResponse(ApiCode.REQUEST_SUCCESS, "您已生成体验码，请稍后再试");
-        }
+
+      /* String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
+        if (StringUtils.isNotEmpty(openId)) {
+            Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
+            return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
+        }*/
         TmpQrcode tmpQrcode = new TmpQrcode();
+      String uuid=  UUIDUtils.getUUID();
         tmpQrcode.setId(UUIDUtils.getUUID())
-                .setOpenId(userInfoDTO.getOpenId())
+                .setOpenId(uuid)
                 .setCreateTime(new Date())
                 .setImgUrl(SysConstant.DICTORY_TMP + "1" + ".jpg")
                 .setQrParam(UUIDUtils.getQrTmpUUID()).setIsSwitch("1").setPlateNum(userInfoDTO.getPlatNum())
-                .setPhoneNum(userInfoDTO.getPhone()).setQrParam(userInfoDTO.getQrParam());
+                .setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils.getQrTmpUUID());
+
         //生成带参数的二维码
-        tmpQrcodeService.saveOrUpdate(tmpQrcode);
-        stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(),userInfoDTO.getQrParam(),5L,TimeUnit.MINUTES);
+          tmpQrcodeService.saveOrUpdate(tmpQrcode);
+          try {
+              stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(),tmpQrcode.getQrParam(),5L,TimeUnit.MINUTES);
+          }catch (Exception e){
+              e.printStackTrace();
+          }
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
     }
 
@@ -82,15 +90,14 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     @ApiOperation(value = "查看我的挪车码-体验", notes = "查看我的挪车码-体验")
     @Transactional(rollbackFor = Exception.class)
     @GetMapping(value = "toViewQrParam")
-    public ApiResponse toViewQrParam(@RequestParam(value = "openId") String openId) {
-      //  LoginSessionKeyDTO loginSessionKeyDTO = WxUtils.getOpenId(code).getData();
+    public ApiResponse toViewQrParam(@RequestParam(value = "openId") String openId) throws Exception{
         QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<>();
         qrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
         List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(qrcodeQueryWrapper);
         if (CollectionUtils.isNotEmpty(tmpQrcodes)) {
             return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcodes);
         }
-        return null;
+        return ApiResponse.success();
     }
 
 

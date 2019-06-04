@@ -164,8 +164,8 @@ public class QrcodeController extends Controller {
     }
 
     @ApiOperation(value = "获取图片信息", notes = "获取图片信息")
-    @GetMapping(value = "/getQrParamImg", produces = MediaType.IMAGE_JPEG_VALUE)
-    public void getQrParamImg(HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/getQrParamImg/{tmpQrParam}/{jpg}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void getQrParamImg(@PathVariable String tmpQrParam,@PathVariable String jpg,  HttpServletResponse response) throws IOException {
         String path = "D:/img/tmpQrParam/1.jpg";
         System.out.println(path);
         BufferedImage img = new BufferedImage(300, 150, BufferedImage.TYPE_INT_RGB);

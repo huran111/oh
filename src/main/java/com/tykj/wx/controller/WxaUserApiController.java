@@ -16,6 +16,8 @@ import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
 import com.tykj.exception.BusinessException;
+import com.tykj.utils.AESUtils;
+import com.tykj.utils.WxUtils;
 import com.tykj.wx.dto.AppIdDTO;
 import com.tykj.wx.dto.LoginSessionKeyDTO;
 import com.tykj.wx.entity.Qrcode;
@@ -31,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author  huran
+ * @author huran
  */
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -52,11 +54,9 @@ public class WxaUserApiController extends WxaController {
     /**
      * 登陆接口
      */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @GetMapping(value = "login")
     public ApiResponse login(HttpServletRequest request) throws Exception {
         setHttpServletRequest(request);
-
         String jsCode = getPara("code");
         if (StringUtils.isEmpty(jsCode)) {
             return new ApiResponse(ApiCode.EMPTY_PARAM);
@@ -67,32 +67,50 @@ public class WxaUserApiController extends WxaController {
             log.info(ApiCode.SESSION_KEY_FAIL.toString());
             throw new BusinessException(ApiCode.SESSION_KEY_FAIL, "获取session_key失败");
         }
-
-        LoginSessionKeyDTO dto = JSONObject.parseObject(apiResult.getJson(), LoginSessionKeyDTO.class);
-        //拿到openId判断用户是否已经绑定了二维码
-        QueryWrapper<Qrcode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(Qrcode::getId, dto.getOpenid()).eq
-                (Qrcode::getIsBinding, "1");
-        Qrcode qrcode = qrcodeService.getOne(queryWrapper);
         String sessionId = StrKit.getRandomUUID();
-        //已经绑定
-        if (null != qrcode) {
-            dto.setSessionID(sessionId);
-            // 利用 appId 与 accessToken 建立关联，支持多账户
-            IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
-            //保持sessionID和openId到本地的CurrentHashMap中
-            accessTokenCache.set(SysConstant.SESSION_KEY + sessionId, apiResult.getJson());
-            return new ApiResponse(ApiCode.LONG_SUCCESS, dto);
-        } else {
-            throw new BusinessException(ApiCode.NOT_BINDING, "该用户没有绑定二维码");
+        // 利用 appId 与 accessToken 建立关联，支持多账户
+        IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
+        //保持sessionID和openId到本地的CurrentHashMap中
+        accessTokenCache.set(SysConstant.SESSION_KEY + sessionId, apiResult.getJson());
+       // String signature = getPara("signature");
+       // String rawData = getPara("rawData");
+        String encryptedData = getPara("encryptedData");
+        String iv = getPara("iv");
+        // 参数空校验 不做演示
+        // 利用 appId 与 accessToken 建立关联，支持多账户
+       // IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
+      //  String sessionId = getHeader(SysConstant.SESSION_KEY);
+ /*       if (StrKit.isBlank(sessionId)) {
+            return new ApiResponse(ApiCode.EMPTY_PARAM, "wxa_session Header is blank");
         }
+        String sessionJson = accessTokenCache.get("wxa:session:" + sessionId);
+        if (StrKit.isBlank(sessionJson)) {
+            log.info("wxa_session sessionJson is blank");
+            return new ApiResponse(ApiCode.EMPTY_PARAM, "wxa_session sessionJson is blank");
+        }
+        ApiResult sessionResult = ApiResult.create(sessionJson);
+        // 获取sessionKey
+        String sessionKey = sessionResult.get("session_key");
+        if (StrKit.isBlank(sessionKey)) {
+            log.info("sessionKey is blank");
+            return new ApiResponse(ApiCode.EMPTY_PARAM, "sessionKey is blank");
+        }*/
+        // 用户信息校验
+    /*    boolean check = wxaUserApi.checkUserInfo(sessionKey, rawData, signature);
+        if (!check) {
+            log.info("UserInfo check fail");
+            return new ApiResponse(ApiCode.CHECK_FAIL, "UserInfo check fail");
+        }*/
+        String sessionKey = apiResult.get("session_key");
+        String aaa= AESUtils.decrypt(encryptedData,sessionKey,iv,"UTF-8");
+        // 服务端解密用户信息
+        return ApiResponse.success();
     }
-
     /**
      * 服务端解密用户信息接口
      * 获取unionId
      */
-    // @GetMapping(value = "/info")
+    //@GetMapping(value = "/info")
     public ApiResponse info(HttpServletRequest request) {
         setHttpServletRequest(request);
         String signature = getPara("signature");

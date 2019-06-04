@@ -30,13 +30,17 @@ public class GlobalDefultExceptionHandler {
     public ApiResponse<?> defultExcepitonHandler(HttpServletRequest request, Exception e) {
         if (e instanceof BusinessException) {
             log.error(e.getMessage());
+            e.printStackTrace();
             BusinessException businessException = (BusinessException) e;
             return new ApiResponse(ApiCode.EMPTY_PARAM,businessException.getMessage());
         }
         if(e instanceof MethodArgumentNotValidException){
             log.error(e.getMessage());
+            e.printStackTrace();
             MethodArgumentNotValidException validException = (MethodArgumentNotValidException) e;
             return new ApiResponse(ApiCode.EMPTY_PARAM,validException.getMessage());
+        }else {
+            e.printStackTrace();
         }
         //未知错误
         return ApiResponse.error();

@@ -33,6 +33,5 @@ public class AspectAdviceConfig {
         wxaConfig.setAppId(wxProperties.getAppId());
         wxaConfig.setAppSecret(wxProperties.getAppSecret());
         WxaConfigKit.setWxaConfig(wxaConfig);
-        System.out.println("Before--通知方法会在目标方法调用之前执行");
     }
 }

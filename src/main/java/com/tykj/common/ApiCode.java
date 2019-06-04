@@ -19,7 +19,10 @@ public enum ApiCode {
     BINDING(200,1,"已绑定"),
     NOT_BINDING(200,0,"未绑定"),
     IS_ONESELF(200,1000,"自己扫自己"),
-    BINDING_SUCCESS(200,"绑定成功");
+    BINDING_SUCCESS(200,"绑定成功"),
+    CLOSE_SWITCH(200,0,"已关闭"),
+    OPEN_SWITCH(200,1,"开启"),
+    SEND_SUCCESS(200,"发生成功");
 
     private int code;
     private String desc;

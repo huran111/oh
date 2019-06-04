@@ -23,4 +23,5 @@ public class AliYunProperties{
 	private String poolKey;
 	private String bindAxn;
 	private String sendSms;
+	private String addressKey;
 }
