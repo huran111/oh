@@ -7,7 +7,7 @@
             catalina.home指向公用信息的位置，就是bin和lib的父目录。
             catalina.base指向每个Tomcat目录私有信息的位置，就是conf、logs、temp、webapps和work的父目录。
     -->
-    <!--<property name="LOG_DIR" value="${catalina.base}/logs"/>-->
+    <!--<property name="home/logs" value="${catalina.base}/logs"/>-->
 
     <!--
         %p:输出优先级，即DEBUG,INFO,WARN,ERROR,FATAL
@@ -41,11 +41,11 @@
 
     <appender name="SQL_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建 -->
-        <file>${LOG_DIR}/sql_info.log</file>
+        <file>/home/logs/sql_info.log</file>
         <!-- 当发生滚动时，决定RollingFileAppender的行为，涉及文件移动和重命名。属性class定义具体的滚动策略类 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 必要节点，包含文件名及"%d"转换符，"%d"可以包含一个java.text.SimpleDateFormat指定的时间格式，默认格式是 yyyy-MM-dd -->
-            <fileNamePattern>${LOG_DIR}/sql_info_%d{yyyy-MM-dd}.log.%i.gz</fileNamePattern>
+            <fileNamePattern>/home/logs/sql_info_%d{yyyy-MM-dd}.log.%i.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -66,9 +66,9 @@
     </appender>
 
     <appender name="SQL_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/sql_error.log</file>
+        <file>/home/logs/sql_error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/sql_error_%d{yyyy-MM-dd}.log.%i.gz</fileNamePattern>
+            <fileNamePattern>/home/logs/sql_error_%d{yyyy-MM-dd}.log.%i.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -85,9 +85,9 @@
     </appender>
 
     <appender name="APP_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/info.log</file>
+        <file>/home/logs/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_DIR}/info.%d{yyyy-MM-dd}.log
+            <FileNamePattern>/home/logs/info.%d{yyyy-MM-dd}.log
             </FileNamePattern>
         </rollingPolicy>
         <encoder>
@@ -107,7 +107,7 @@
                 <pattern>%d{yyyyMMdd:HH:mm:ss.SSS}%thread%-5level%F{32}%M%L%msg</pattern>
             </layout>
         </encoder>
-        <file>${LOG_DIR}/test.html</file>
+        <file>/home/logs/test.html</file>
     </appender>
 
 
