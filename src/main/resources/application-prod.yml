@@ -48,6 +48,7 @@ wx:
 logging:
   level: debug
   path: /home/logs
+  file: oh.log
 server:
   port: 8088
 swagger:
