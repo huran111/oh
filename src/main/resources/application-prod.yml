@@ -6,7 +6,7 @@ spring:
     basename: i18n.messages
   datasource:
     username: root
-    password: iO3KQS9iFUOUmV0HqZUIHsko/I6v3jzf4G2inRgo1Sd2PcNoG1JDPN7hkbS3kEaBjU1DhirKaODVAQEvnqfi5g==
+    password: jZdGX2hkcsCTynaYTBrk6LF0Jpdx6/QPQYl4vQlsDPo8MffqdtETGmrCAan1faiAz2umFMdV70O2SVnWN4G4Nw==
     url: jdbc:mysql://62.234.151.151:3306/oh-xiaochengxu?useUnicode=true&characterEncoding=utf8&useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
@@ -24,7 +24,7 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
   redis:
-    host: 62.234.151.151
+    host: localhost
     port: 6379
     database: 0
     password: 123456
@@ -47,6 +47,7 @@ wx:
   appSecret: 9d09528df6016e26afb0b215cb2ab0c5
 logging:
   level: debug
+  path: /home/logs
 server:
   port: 8088
 swagger:
