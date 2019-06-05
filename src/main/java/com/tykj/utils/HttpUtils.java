@@ -56,6 +56,7 @@ public class HttpUtils {
                     Object[0]);
             System.out.println("调用小程序生成微信永久小程序码URL接口返回结果:" + entity.getBody());
             byte[] result = entity.getBody();
+
             inputStream = new ByteArrayInputStream(result);
             File file = new File(filePath);
             if (!file.exists()) {
@@ -87,5 +88,44 @@ public class HttpUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 生成二维码
+     * @param inputStream
+     * @param filePath
+     */
+    public static void getminiqrQr(InputStream inputStream, String filePath) {
+        OutputStream outputStream = null;
+        try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            outputStream = new FileOutputStream(file);
+            int len = 0;
+            byte[] buf = new byte[1024];
+            while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.flush();
+        } catch (Exception e) {
+            System.out.println("调用小程序生成微信永久小程序码URL接口异常");
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
