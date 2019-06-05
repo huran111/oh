@@ -10,17 +10,10 @@ import com.tykj.exception.BusinessException;
 import com.tykj.wx.dto.LoginSessionKeyDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import com.alibaba.fastjson.JSONObject;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.AlgorithmParameters;
-
-import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
 import org.apache.commons.codec.binary.Base64;
 
 /**
