@@ -8,7 +8,7 @@ import javax.servlet.annotation.WebServlet;
 /**
  * @author  huran
  */
-@WebServlet(urlPatterns = "/druid/*", initParams = {@WebInitParam(name = "allow", value = "127.0.0.1"), // IP白名单 默认所有可以访问
+@WebServlet(urlPatterns = "/druid/*", initParams = {@WebInitParam(name = "allow", value = "62.234.151.151"), // IP白名单 默认所有可以访问
         @WebInitParam(name = "deny", value = "192.168.1.73"), // IP黑名单 (存在共同时，deny优先于allow)
         @WebInitParam(name = "loginUsername", value = "root"),
         @WebInitParam(name = "loginPassword", value = "root"),
