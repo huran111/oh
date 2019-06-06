@@ -28,7 +28,7 @@ public class CodeGenerator {
     public static Map<String,List<String>> moduleTableMap = Maps.newHashMap();
 
     static{
-        moduleTableMap.put("wx", Arrays.asList("wx_tmp_qrcode"));
+        moduleTableMap.put("wx", Arrays.asList("sys_third_req_log"));
     }
 
     public static void main(String[] args) {
@@ -78,11 +78,11 @@ public class CodeGenerator {
     public static void dataSourceConfig(AutoGenerator mpg){
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://120.78.184.26:3306/wx-yc?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://62.234.151.151:3306/oh-xiaochengxu?useUnicode=true&characterEncoding=utf8&useSSL=false");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("root");
-        dsc.setPassword("root");
+        dsc.setPassword("Oh1236OH");
         mpg.setDataSource(dsc);
     }
 
