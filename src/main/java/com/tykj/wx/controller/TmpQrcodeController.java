@@ -51,6 +51,7 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     @PostMapping(value = "/generateTmpQr")
     public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws
             Exception {
+        log.info("");
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
                 log.info("==============>>>" + fieldError.getDefaultMessage());
