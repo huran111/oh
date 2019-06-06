@@ -51,7 +51,7 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     @PostMapping(value = "/generateTmpQr")
     public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws
             Exception {
-        log.info("");
+        log.info("生成体验码:"+userInfoDTO.toString());
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
                 log.info("==============>>>" + fieldError.getDefaultMessage());
@@ -60,19 +60,19 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         }
 
         String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
-        if (StringUtils.isNotEmpty(openId)) {
+     /*   if (StringUtils.isNotEmpty(openId)) {
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
-        }
+        }*/
         TmpQrcode tmpQrcode = new TmpQrcode();
         String uuid = UUIDUtils.getUUID();
         tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(uuid).setCreateTime(new Date()).setImgUrl(SysConstant
-                .DICTORY_TMP + UUIDUtils.getQrTmpUUID() + ".jpg").setQrParam(UUIDUtils.getQrTmpUUID()).setIsSwitch
+                .DICTORY_TMP + UUIDUtils.getQrTmpUUID() + ".png").setQrParam(UUIDUtils.getQrTmpUUID()).setIsSwitch
                 ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
                 .getQrTmpUUID());
 
         WxUtils.getminiqrQr(WxaAccessTokenApi.getAccessTokenStr(), "/home/images/tmpQrParam/" + UUIDUtils
-                .getQrTmpUUID() + ".jpg");
+                .getQrTmpUUID() + ".png");
         tmpQrcodeService.saveOrUpdate(tmpQrcode);
         try {
             stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
