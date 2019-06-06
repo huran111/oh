@@ -135,9 +135,9 @@ public class AspectAdviceConfig {
         String paramter = "";
         if (arguments != null) {
             try {
-                paramter = JSONObject.toJSONString(arguments);
+                paramter = JSONObject.toJSONString(arguments[0]);
             } catch (Exception e) {
-                paramter = arguments.toString();
+                paramter = e.getMessage();
             }
         }
         thirdReqLog.setId(UUID.randomUUID().toString().replace("-", "")).setReqUrl(request.getRequestURI().toString()
