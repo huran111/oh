@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
+import com.tykj.common.SysConstant;
 import com.tykj.utils.AESUtils;
 import com.tykj.utils.LocationUtils;
 import com.tykj.wx.entity.Qrcode;
@@ -77,11 +78,11 @@ public class SendSms {
         IAcsClient client = new DefaultAcsClient(profile);
         String license = "";
         String noticePhone = "";
-        if ("tmp".equals(qrParam)) {
+        if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
             TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda()
                     .eq(TmpQrcode::getQrParam, qrParam));
             if (null != tmpQrcode) {
-                if ("0".equals(tmpQrcode.getIsSwitch())) {
+                if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
                     return new ApiResponse(ApiCode.CLOSE_SWITCH);
                 }
                 license = tmpQrcode.getPlateNum();
@@ -92,7 +93,7 @@ public class SendSms {
                     .eq(Qrcode::getQrParam, qrParam));
 
             if (null != qrcode) {
-                if ("0".equals(qrcode.getIsSwitch())) {
+                if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
                     return new ApiResponse(ApiCode.CLOSE_SWITCH);
                 }
                 license = qrcode.getPlateNum();
@@ -101,7 +102,7 @@ public class SendSms {
             }
         }
         Map<String, Object> map = LocationUtils.getLocation(lat, lng, aliYunProperties.getAddressKey());
-        System.out.println(map);
+        String address=String.format("%s,%s",map.get("city"),map.get("district"));
         CommonRequest request = new CommonRequest();
         //request.setProtocol(ProtocolType.HTTPS);
         request.setMethod(MethodType.POST);
@@ -113,7 +114,7 @@ public class SendSms {
         request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateCode());
         request.putQueryParameter("PhoneNumbers", noticePhone);
         //模板中变量
-        request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"郑州市\",\"phone\":\"" + saoPhone + "\"}");
+        request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\""+address+"\",\"phone\":\"" + saoPhone + "\"}");
         try {
             CommonResponse response = client.getCommonResponse(request);
             return new ApiResponse(ApiCode.OPEN_SWITCH);
