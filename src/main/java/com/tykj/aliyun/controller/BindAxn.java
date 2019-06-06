@@ -14,6 +14,7 @@ import com.tykj.aliyun.dto.PhoneRootBean;
 import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
+import com.tykj.msg.SendTemplateMsg;
 import com.tykj.utils.DateUtils;
 import com.tykj.wx.entity.Qrcode;
 import com.tykj.wx.entity.TmpQrcode;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/rest/wx/bindaxn")
-public class BindAxn {
+public class BindAxn  extends SendTemplateMsg{
 
     @Resource
     private AliYunProperties aliYunProperties;
@@ -98,7 +99,6 @@ public class BindAxn {
         CommonResponse response = client.getCommonResponse(request);
         log.info("============>绑定号码状态" + response.getData());
         PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
-        String info = JSONObject.toJSONString(phoneRootBean);
         stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
         String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
         return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
