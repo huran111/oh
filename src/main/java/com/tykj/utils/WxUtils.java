@@ -82,7 +82,7 @@ public class WxUtils {
             PrintWriter printWriter = new PrintWriter(httpURLConnection.getOutputStream());
             // 发送请求参数
             JSONObject paramJson = new JSONObject();
-            paramJson.put("scene", UUIDUtils.getQrTmpUUID());
+            paramJson.put("qrParam", UUIDUtils.getQrTmpUUID());
             paramJson.put("path", "pages/home/home");
             paramJson.put("width", 430);
             paramJson.put("is_hyaline", true);
