@@ -35,7 +35,8 @@ public class GlobalDefultExceptionHandler {
             return new ApiResponse(ApiCode.EMPTY_PARAM,businessException.getMessage());
         }
         if(e instanceof MethodArgumentNotValidException){
-            log.error(e.getMessage());
+            e.printStackTrace();
+            log.info(e.getMessage());
             e.printStackTrace();
             MethodArgumentNotValidException validException = (MethodArgumentNotValidException) e;
             return new ApiResponse(ApiCode.EMPTY_PARAM,validException.getMessage());
