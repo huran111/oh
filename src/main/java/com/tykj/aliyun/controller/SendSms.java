@@ -13,10 +13,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jfinal.weixin.sdk.api.ApiResult;
 import com.jfinal.weixin.sdk.api.TemplateData;
 import com.jfinal.weixin.sdk.api.TemplateMsgApi;
+import com.jfinal.wxaapp.api.WxaAccessTokenApi;
 import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
+import com.tykj.msg.SendTemplateMsg;
 import com.tykj.utils.AESUtils;
 import com.tykj.utils.LocationUtils;
 import com.tykj.wx.entity.Qrcode;
@@ -30,6 +32,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -45,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/rest/wx/sms")
-public class SendSms {
+public class SendSms extends SendTemplateMsg {
 
     @Resource
     private AliYunProperties aliYunProperties;
@@ -118,10 +121,10 @@ public class SendSms {
         request.putQueryParameter("PhoneNumbers", noticePhone);
         //模板中变量
         request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address + "\"," +
-                "" + "\"phone\":\"" + saoPhone + "\"}");
+                "" + "" + "\"phone\":\"" + saoPhone + "\"}");
         String finalPlate = plate;
         new Thread(() -> {
-            templateMsg(openId, finalPlate, address);
+            super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
         }).start();
         try {
             CommonResponse response = client.getCommonResponse(request);
@@ -134,29 +137,5 @@ public class SendSms {
         return new ApiResponse(ApiCode.OPERATOR_FAIL);
     }
 
-    /**
-     * 推送消息到微信
-     *
-     * @return
-     */
-    public String templateMsg(String openId, String plate, String address) {
-        // 模板消息，发送测试：pass
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String message = "感谢您使用【欧海挪车】通知车主挪车，欧海挪车为广大车主提供更安全更便捷的智慧挪车服务";
-        String remark = "点击申请我的挪车吗，畅享智慧车生活";
 
-        ApiResult result = TemplateMsgApi.send(TemplateData.New()
-                // 消息接收者
-                .setTouser(openId)
-                // 模板id
-                .setTemplate_id("QG4_bKOjuNdkWOIVqk8jRYj0Z9XHJU84Ij5rxWp3_Qs").setUrl("https://api.weixin.qq" + "" +
-                        ".com/cgi-bin/message/wxopen/template/send")
-
-                // 模板参数
-                .add("keyword1", plate, "#000").add("keyword2", df.format(LocalDateTime.now()), "#333").add
-                        ("keyword3", address, "#333").add("keyword4", message, "#333").add("keyword5", remark).add
-                        ("emphasis_keyword", "keyword1.DATA").build());
-        System.out.println(result);
-        return null;
-    }
 }
