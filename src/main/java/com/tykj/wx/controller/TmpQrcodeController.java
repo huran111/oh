@@ -2,16 +2,13 @@ package com.tykj.wx.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jfinal.aop.Duang;
 import com.jfinal.wxaapp.api.WxaAccessTokenApi;
-import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
 import com.tykj.exception.BusinessException;
 import com.tykj.utils.UUIDUtils;
 import com.tykj.utils.WxUtils;
-import com.tykj.wx.dto.LoginSessionKeyDTO;
 import com.tykj.wx.dto.UserInfoDTO;
 import com.tykj.wx.entity.TmpQrcode;
 import com.tykj.wx.service.ITmpQrcodeService;
@@ -27,9 +24,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tykj.core.web.BaseController;
-
 import javax.validation.Valid;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
