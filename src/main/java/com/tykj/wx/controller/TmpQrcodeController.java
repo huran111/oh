@@ -2,7 +2,10 @@ package com.tykj.wx.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jfinal.aop.Duang;
+import com.jfinal.weixin.sdk.utils.IOUtils;
 import com.jfinal.wxaapp.api.WxaAccessTokenApi;
+import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tykj.core.web.BaseController;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -66,13 +71,16 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         }*/
         TmpQrcode tmpQrcode = new TmpQrcode();
         String uuid = UUIDUtils.getUUID();
+        String qrParamId=UUIDUtils.getQrTmpUUID();
         tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(uuid).setCreateTime(new Date()).setImgUrl(SysConstant
-                .DICTORY_TMP + UUIDUtils.getQrTmpUUID() + ".png").setQrParam(UUIDUtils.getQrTmpUUID()).setIsSwitch
+                .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
                 ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
                 .getQrTmpUUID());
-
-        WxUtils.getminiqrQr(WxaAccessTokenApi.getAccessTokenStr(), "/home/images/tmpQrParam/" + UUIDUtils
-                .getQrTmpUUID() + ".png");
+        WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
+        InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
+        IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/"+qrParamId+".png"));
+       /* WxUtils.getminiqrQr(WxaAccessTokenApi.getAccessTokenStr(), "/home/images/tmpQrParam/" + UUIDUtils
+                .getQrTmpUUID() + ".png");*/
         tmpQrcodeService.saveOrUpdate(tmpQrcode);
         try {
             stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
