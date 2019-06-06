@@ -33,19 +33,19 @@ public abstract class SendTemplateMsg {
                     .add("keyword1", plate, "#000").add("keyword2", df.format(LocalDateTime.now()), "#333").add
                             ("keyword4", message, "#333").add("keyword5", remark).add("emphasis_keyword",
                             "keyword1.DATA").build());
+        }else {
+            ApiResult result = TemplateMsgApi.send(TemplateData.New()
+                    // 消息接收者
+                    .setTouser(openId)
+                    // 模板id
+                    .setTemplate_id("QG4_bKOjuNdkWOIVqk8jRYj0Z9XHJU84Ij5rxWp3_Qs").setUrl("https://api.weixin.qq" + "" +
+                            ".com/cgi-bin/message/wxopen/template/send?access_token=" + token + "")
+
+                    // 模板参数
+                    .add("keyword1", plate, "#000").add("keyword2", df.format(LocalDateTime.now()), "#333").add
+                            ("keyword3", address, "#333").add("keyword4", message, "#333").add("keyword5", remark).add
+                            ("emphasis_keyword", "keyword1.DATA").build());
+
         }
-        ApiResult result = TemplateMsgApi.send(TemplateData.New()
-                // 消息接收者
-                .setTouser(openId)
-                // 模板id
-                .setTemplate_id("QG4_bKOjuNdkWOIVqk8jRYj0Z9XHJU84Ij5rxWp3_Qs").setUrl("https://api.weixin.qq" + "" +
-                        ".com/cgi-bin/message/wxopen/template/send?access_token=" + token + "")
-
-                // 模板参数
-                .add("keyword1", plate, "#000").add("keyword2", df.format(LocalDateTime.now()), "#333").add
-                        ("keyword3", address, "#333").add("keyword4", message, "#333").add("keyword5", remark).add
-                        ("emphasis_keyword", "keyword1.DATA").build());
-
-        System.out.println(result);
     }
 }
