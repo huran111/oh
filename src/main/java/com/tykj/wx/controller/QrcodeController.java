@@ -165,14 +165,18 @@ public class QrcodeController extends Controller {
     }
 
     @ApiOperation(value = "获取图片信息", notes = "获取图片信息")
-    @GetMapping(value = "/getQrParamImg/{directory}/{jpg}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public void getQrParamImg(@PathVariable String directory,@PathVariable String jpg,  HttpServletResponse response) throws IOException {
-        String path = "/home/tmpQrParam/1.jpg";
-        String.format("/%s/%s,/%s","home",directory,jpg);
+    @GetMapping(value = "/getQrParamImg/{directory}/{imagesName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void getQrParamImg(@PathVariable String directory,@PathVariable String imagesName,  HttpServletResponse response) throws IOException {
+        String path;
+        if(imagesName.contains("png")){
+            path= "home\\images\\"+directory+"\\"+imagesName;
+            }else {
+            path= "home\\images\\"+directory+"\\"+imagesName+".png";
+            }
         log.info("图片的路径:"+path);
         BufferedImage img = new BufferedImage(300, 150, BufferedImage.TYPE_INT_RGB);
         img = ImageIO.read(new FileInputStream(new File(path)));
-        ImageIO.write(img, "JPEG", response.getOutputStream());
+        ImageIO.write(img, "png", response.getOutputStream());
     }
 
     @GetMapping(value = "/onOrOffQr")
