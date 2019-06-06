@@ -2,6 +2,8 @@ package com.tykj.wx.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jfinal.aop.Duang;
+import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tykj.core.web.BaseController;
 
 import javax.validation.Valid;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,13 +61,13 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
             });
         }
 
-      /* String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
+      String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
         if (StringUtils.isNotEmpty(openId)) {
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
-        }*/
+        }
         TmpQrcode tmpQrcode = new TmpQrcode();
-      String uuid=  UUIDUtils.getUUID();
+        String uuid=  UUIDUtils.getUUID();
         tmpQrcode.setId(UUIDUtils.getUUID())
                 .setOpenId(uuid)
                 .setCreateTime(new Date())
@@ -72,8 +75,8 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 .setQrParam(UUIDUtils.getQrTmpUUID()).setIsSwitch("1").setPlateNum(userInfoDTO.getPlatNum())
                 .setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils.getQrTmpUUID());
 
-        //生成带参数的二维码
-          tmpQrcodeService.saveOrUpdate(tmpQrcode);
+
+        tmpQrcodeService.saveOrUpdate(tmpQrcode);
           try {
               stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(),tmpQrcode.getQrParam(),5L,TimeUnit.MINUTES);
           }catch (Exception e){
@@ -91,6 +94,7 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     @Transactional(rollbackFor = Exception.class)
     @GetMapping(value = "toViewQrParam")
     public ApiResponse toViewQrParam(@RequestParam(value = "openId") String openId) throws Exception{
+        log.info("查看我的挪车码:[{}]:"+openId);
         QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<>();
         qrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
         List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(qrcodeQueryWrapper);
@@ -99,6 +103,4 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         }
         return ApiResponse.success();
     }
-
-
 }
