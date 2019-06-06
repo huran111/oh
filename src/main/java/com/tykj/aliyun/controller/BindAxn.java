@@ -10,10 +10,12 @@ import com.aliyuncs.exceptions.ServerException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jfinal.wxaapp.api.WxaAccessTokenApi;
 import com.tykj.aliyun.dto.PhoneRootBean;
 import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
+import com.tykj.common.SysConstant;
 import com.tykj.msg.SendTemplateMsg;
 import com.tykj.utils.DateUtils;
 import com.tykj.wx.entity.Qrcode;
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/rest/wx/bindaxn")
-public class BindAxn  extends SendTemplateMsg{
+public class BindAxn extends SendTemplateMsg {
 
     @Resource
     private AliYunProperties aliYunProperties;
@@ -57,28 +59,47 @@ public class BindAxn  extends SendTemplateMsg{
 
     @Transactional
     @RequestMapping("/getphonex")
-    public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String qrParam) throws Exception {
-        DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties.getAccessKeyId(), aliYunProperties.getSecret());
+    public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
+            qrParam) throws Exception {
+        DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
+                .getAccessKeyId(), aliYunProperties.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);
         CommonRequest request = new CommonRequest();
-        if ("tmp".equals(qrParam)) {
-            TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda()
-                    .eq(TmpQrcode::getId, id).eq(TmpQrcode::getQrParam, qrParam));
-            if ("0".equals(tmpQrcode.getIsSwitch())) {
+        String openId="";
+        String plate="";
+        if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
+            TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getId,
+                    id).eq(TmpQrcode::getQrParam, qrParam));
+            if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
                 return new ApiResponse(ApiCode.CLOSE_SWITCH);
             }
-            Optional.ofNullable(tmpQrcode).ifPresent(x -> {
-                request.putQueryParameter("PhoneNoA", x.getPhoneNum());
-            });
+            if(null!=tmpQrcode){
+                openId=tmpQrcode.getOpenId();
+                plate=tmpQrcode.getPlateNum();
+                request.putQueryParameter("PhoneNoA", tmpQrcode.getPhoneNum());
+                String finalOpenId = openId;
+                String finalPlate = plate;
+                new Thread(()->{
+                    super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr());
+                }).start();
+            }
         } else {
-            Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda()
-                    .eq(Qrcode::getId, id).eq(Qrcode::getQrParam, qrParam));
-            if ("0".equals(qrcode.getIsSwitch())) {
+            Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getId, id).eq
+                    (Qrcode::getQrParam, qrParam));
+            if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
                 return new ApiResponse(ApiCode.CLOSE_SWITCH);
             }
-            Optional.ofNullable(qrcode).ifPresent(x -> {
-                request.putQueryParameter("PhoneNoA", x.getPhoneNum());
-            });
+            if(null!=qrcode){
+                request.putQueryParameter("PhoneNoA", qrcode.getPhoneNum());
+                openId=qrcode.getOpenId();
+                plate=qrcode.getPlateNum();
+                String finalOpenId = openId;
+                String finalPlate = plate;
+                new Thread(()->{
+                    super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr());
+                }).start();
+            }
+
         }
         //存储虚拟机号码
         String phoneInfo = stringRedisTemplate.opsForValue().get(id);
