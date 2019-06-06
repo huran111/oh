@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jfinal.core.Controller;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
+import com.tykj.common.SysConstant;
 import com.tykj.exception.BusinessException;
 import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.dto.UserInfoDTO;
@@ -60,7 +61,7 @@ public class QrcodeController extends Controller {
     @ApiOperation(value = "判断用户是否绑定二维码信息", notes = "判断用户是否绑定二维码信息")
     @GetMapping(value = "/bindingUserInfo")
     public ApiResponse isbindingUserInfo(@RequestParam(value = "qrParam") String qrParam, @RequestParam(value = "openId") String openId) throws Exception {
-        if (qrParam.contains("tmp")) {
+        if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             QueryWrapper<TmpQrcode> queryWrapper = new QueryWrapper<TmpQrcode>();
             queryWrapper.lambda().eq(TmpQrcode::getQrParam, qrParam);
             TmpQrcode var1 = this.tmpQrcodeService.getOne(queryWrapper);
@@ -128,7 +129,7 @@ public class QrcodeController extends Controller {
          * 编辑
          */
         if (StringUtils.isNoneEmpty(userInfoDTO.getId()) && StringUtils.isNoneEmpty(userInfoDTO.getQrParam())) {
-            if (userInfoDTO.getQrParam().contains("tmp")) {
+            if (userInfoDTO.getQrParam().contains(SysConstant.TMP_QRPARAM)) {
                 TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>()
                         .lambda().eq(TmpQrcode::getOpenId, userInfoDTO.getOpenId()).eq(TmpQrcode::getQrParam, userInfoDTO.getQrParam()));
                 if (null != tmpQrcode) {
@@ -164,20 +165,20 @@ public class QrcodeController extends Controller {
     }
 
     @ApiOperation(value = "获取图片信息", notes = "获取图片信息")
-    @GetMapping(value = "/getQrParamImg/{tmpQrParam}/{jpg}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public void getQrParamImg(@PathVariable String tmpQrParam,@PathVariable String jpg,  HttpServletResponse response) throws IOException {
-        String path = "D:/img/tmpQrParam/1.jpg";
-        System.out.println(path);
+    @GetMapping(value = "/getQrParamImg/{directory}/{jpg}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void getQrParamImg(@PathVariable String directory,@PathVariable String jpg,  HttpServletResponse response) throws IOException {
+        String path = "/home/tmpQrParam/1.jpg";
+        String.format("/%s/%s,/%s","home",directory,jpg);
+        log.info("图片的路径:"+path);
         BufferedImage img = new BufferedImage(300, 150, BufferedImage.TYPE_INT_RGB);
         img = ImageIO.read(new FileInputStream(new File(path)));
-        response.setContentType("");
         ImageIO.write(img, "JPEG", response.getOutputStream());
     }
 
     @GetMapping(value = "/onOrOffQr")
     public ApiResponse onOrOffQr(@RequestParam(value = "qrParam") String qrParam, @RequestParam(value = "openId") String openId
             , @RequestParam(value = "isSwitch") String isSwitch) throws Exception {
-        if (qrParam.contains("tmp")) {
+        if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getQrParam, qrParam)
                     .eq(TmpQrcode::getOpenId, openId));
             if (null != tmpQrcode) {
