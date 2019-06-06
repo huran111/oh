@@ -77,10 +77,9 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
                 .getQrTmpUUID());
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
+        //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
         IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/"+qrParamId+".png"));
-       /* WxUtils.getminiqrQr(WxaAccessTokenApi.getAccessTokenStr(), "/home/images/tmpQrParam/" + UUIDUtils
-                .getQrTmpUUID() + ".png");*/
         tmpQrcodeService.saveOrUpdate(tmpQrcode);
         try {
             stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
