@@ -65,10 +65,10 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         }
 
         String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
-     /*   if (StringUtils.isNotEmpty(openId)) {
+       if (StringUtils.isNotEmpty(openId)) {
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
-        }*/
+        }
         TmpQrcode tmpQrcode = new TmpQrcode();
         String qrParamId=UUIDUtils.getQrTmpUUID();
         log.info("openID:"+userInfoDTO.getOpenId());
