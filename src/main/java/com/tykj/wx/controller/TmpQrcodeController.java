@@ -71,7 +71,8 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         }*/
         TmpQrcode tmpQrcode = new TmpQrcode();
         String qrParamId=UUIDUtils.getQrTmpUUID();
-        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(openId).setCreateTime(new Date()).setImgUrl(SysConstant
+        log.info("openID:"+userInfoDTO.getOpenId());
+        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl(SysConstant
                 .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
                 ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
                 .getQrTmpUUID());
