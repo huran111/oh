@@ -71,7 +71,9 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
         }
         //删除之前得体验码
-        boolean gb = tmpQrcodeService.remove(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getOpenId, openId));
+        QueryWrapper queryWrapper=new QueryWrapper();
+        queryWrapper.eq("openId",openId);
+        boolean gb = tmpQrcodeService.remove(queryWrapper);
         log.info("删除是否成功:[{}]", gb);
         TmpQrcode tmpQrcode = new TmpQrcode();
         String qrParamId = UUIDUtils.getQrTmpUUID();
