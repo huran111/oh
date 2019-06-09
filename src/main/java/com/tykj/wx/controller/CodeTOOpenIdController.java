@@ -24,7 +24,6 @@ public class CodeTOOpenIdController {
     @GetMapping(value = "/codeToOpenId")
     public ApiResponse codeToOpenId(@RequestParam(value = "code") String code)  throws Exception{
         LoginSessionKeyDTO loginSessionKeyDTO = WxUtils.getOpenId(code).getData();
-
         stringRedisTemplate.opsForValue().set(String.format("%s:%s","sessionKey",loginSessionKeyDTO.getOpenid()),loginSessionKeyDTO.getSession_key());
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, loginSessionKeyDTO);
     }
