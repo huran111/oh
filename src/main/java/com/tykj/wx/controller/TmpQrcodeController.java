@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ import com.tykj.core.web.BaseController;
 
 import javax.validation.Valid;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("rest/wx/tmp/qrcode")
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQrcode> {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -53,10 +56,9 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
     private ITmpQrcodeService tmpQrcodeService;
 
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
-    @Transactional(rollbackFor = Exception.class)
+
     @PostMapping(value = "/generateTmpQr")
-    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws
-            Exception {
+    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult)  {
         log.info("生成体验码:" + userInfoDTO.toString());
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
@@ -65,14 +67,14 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
             });
         }
 
-        String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
-        if (StringUtils.isNotEmpty(openId)) {
+        String redisOpenId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
+        if (StringUtils.isNotEmpty(redisOpenId)) {
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
         }
         //删除之前得体验码
-        QueryWrapper queryWrapper=new QueryWrapper();
-        queryWrapper.eq("openId",openId);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("openId", userInfoDTO.getOpenId());
         boolean gb = tmpQrcodeService.remove(queryWrapper);
         log.info("删除是否成功:[{}]", gb);
         TmpQrcode tmpQrcode = new TmpQrcode();
@@ -85,15 +87,16 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
         //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
-        tmpQrcodeService.save(tmpQrcode);
         try {
-            stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
-                    .MINUTES);
-        } catch (Exception e) {
-            e.printStackTrace();
+            IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
+        } catch (IOException e) {
+
         }
+        tmpQrcodeService.save(tmpQrcode);
+        stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
+                .MINUTES);
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
+
     }
 
     /**
