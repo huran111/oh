@@ -94,9 +94,9 @@ public class BindAxn extends SendTemplateMsg {
                 plate=qrcode.getPlateNum();
                 String finalOpenId = openId;
                 String finalPlate = plate;
-                new Thread(()->{
+              /*  new Thread(()->{
                     super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr());
-                }).start();
+                }).start();*/
             }
 
         }
