@@ -125,6 +125,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
      */
     @Override
     public ApiResponse isbindingUserInfo(String qrParam, String openId) {
+        log.info("qrParam:[{}],openId:[{}]",qrParam,openId);
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             QueryWrapper<TmpQrcode> queryWrapper = new QueryWrapper<TmpQrcode>();
             queryWrapper.lambda().eq(TmpQrcode::getQrParam, qrParam);
