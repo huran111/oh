@@ -64,36 +64,37 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 throw new BusinessException(ApiCode.EMPTY_PARAM, fieldError.getDefaultMessage());
             });
         }
-
-        String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
-        if (StringUtils.isNotEmpty(openId)) {
-            Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
-            return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
-        }
-        //删除之前得体验码
-        QueryWrapper queryWrapper=new QueryWrapper();
-        queryWrapper.eq("openId",openId);
-        boolean gb = tmpQrcodeService.remove(queryWrapper);
-        log.info("删除是否成功:[{}]", gb);
-        TmpQrcode tmpQrcode = new TmpQrcode();
-        String qrParamId = UUIDUtils.getQrTmpUUID();
-        log.info("openID:" + userInfoDTO.getOpenId());
-        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl(SysConstant
-                .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
-                ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
-                .getQrTmpUUID());
-        WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
-        //生成二维码到指定目录
-        InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
-        tmpQrcodeService.saveOrUpdate(tmpQrcode);
         try {
+            String openId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
+            if (StringUtils.isNotEmpty(openId)) {
+                Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
+                return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
+            }
+            //删除之前得体验码
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("openId", openId);
+            boolean gb = tmpQrcodeService.remove(queryWrapper);
+            log.info("删除是否成功:[{}]", gb);
+            TmpQrcode tmpQrcode = new TmpQrcode();
+            String qrParamId = UUIDUtils.getQrTmpUUID();
+            log.info("openID:" + userInfoDTO.getOpenId());
+            tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl(SysConstant
+                    .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
+                    ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
+                    .getQrTmpUUID());
+            WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
+            //生成二维码到指定目录
+            InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
+            IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
+            tmpQrcodeService.saveOrUpdate(tmpQrcode);
+
             stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
                     .MINUTES);
+            return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
+        return null;
     }
 
     /**
