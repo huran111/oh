@@ -66,7 +66,7 @@ public class BindAxn extends SendTemplateMsg {
         CommonRequest request = new CommonRequest();
         String openId="";
         String plate="";
-        if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
+        if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getId,
                     id).eq(TmpQrcode::getQrParam, qrParam));
             if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
