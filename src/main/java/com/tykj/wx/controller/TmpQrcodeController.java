@@ -56,7 +56,7 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
 
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
     @PostMapping(value = "/generateTmpQr")
-    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws IOException {
+    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws Exception {
         log.info("生成体验码:" + userInfoDTO.toString());
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
@@ -69,11 +69,11 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
         }
+
         TmpQrcode tmpQrcode = tmpQrcodeService.deleteOpenIdAndSaveTmpQrCode(userInfoDTO);
         stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
                 .MINUTES);
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
-
     }
 
     /**
