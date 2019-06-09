@@ -57,7 +57,6 @@ public class BindAxn extends SendTemplateMsg {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Transactional
     @RequestMapping("/getphonex")
     public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
             qrParam) throws Exception {
@@ -79,9 +78,9 @@ public class BindAxn extends SendTemplateMsg {
                 request.putQueryParameter("PhoneNoA", tmpQrcode.getPhoneNum());
                 String finalOpenId = openId;
                 String finalPlate = plate;
-                new Thread(()->{
+              /*  new Thread(()->{
                     super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr());
-                }).start();
+                }).start();*/
             }
         } else {
             Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getId, id).eq
@@ -103,6 +102,7 @@ public class BindAxn extends SendTemplateMsg {
         }
         //存储虚拟机号码
         String phoneInfo = stringRedisTemplate.opsForValue().get(id);
+        log.info("redis-存储虚拟机号码:[{}]",phoneInfo);
         if (StringUtils.isNotEmpty(phoneInfo)) {
             PhoneRootBean phoneRootBean = JSONObject.parseObject(phoneInfo, PhoneRootBean.class);
             String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
