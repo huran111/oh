@@ -85,7 +85,7 @@ public class SendSms extends SendTemplateMsg {
             String license = "";
             String noticePhone = "";
             String plate = "";
-            if (SysConstant.TMP_QRPARAM.contains(qrParam)) {
+            if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
                 TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
                         (TmpQrcode::getQrParam, qrParam));
                 if (null != tmpQrcode) {
@@ -121,7 +121,7 @@ public class SendSms extends SendTemplateMsg {
             //短信模板
             request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateCode());
             request.putQueryParameter("PhoneNumbers", noticePhone);
-            log.info("通知的手机号:[{}]",noticePhone);
+            log.info("通知的手机号:[{}],扫码的手机号：[{}]",noticePhone,saoPhone);
             //模板中变量
             request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address + "\"," +
                     "" + "" + "\"phone\":\"" + saoPhone + "\"}");
@@ -132,7 +132,6 @@ public class SendSms extends SendTemplateMsg {
             try {
                 CommonResponse response = client.getCommonResponse(request);
                 log.info("发送短信通知状态:[{}]",response.getHttpStatus());
-                response.getHttpStatus();
                 return new ApiResponse(ApiCode.OPEN_SWITCH);
             } catch (ServerException e) {
                 e.printStackTrace();
