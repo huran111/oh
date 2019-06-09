@@ -10,11 +10,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 /**
  * @author huran
  */
-//@EnableCaching
 @ServletComponentScan(basePackages = {"com.tykj.config"})
 @MapperScan("com.tykj.*.mapper")
 @EnableTransactionManagement
-@SpringBootApplication
+@SpringBootApplication()
 public class TykjSystemApplication {
 
 	public static void main(String[] args) {
