@@ -64,77 +64,84 @@ public class SendSms extends SendTemplateMsg {
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
             qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng) throws
             Exception {
-        String redisKey = String.format("expire:%s:%s", openId, qrParam);
-        Long isKey = stringRedisTemplate.getExpire(redisKey);
-        if (isKey > 0) {
-            return new ApiResponse(ApiCode.REQUEST_SUCCESS, isKey);
-        }
-        String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
-        stringRedisTemplate.opsForValue().set(redisKey, openId, 5, TimeUnit.MINUTES);
-        //扫码人的手机号
-        String saoPhone = "";
-        if (StringUtils.isNotEmpty(sessionKey)) {
-            String info = AESUtils.decrypt(encryptedData, sessionKey, iv, "UTF-8");
-            saoPhone = (String) JSONObject.parseObject(info).get("phoneNumber");
-        }
-        DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
-                .getAccessKeyId(), aliYunProperties.getSecret());
-        IAcsClient client = new DefaultAcsClient(profile);
-        String license = "";
-        String noticePhone = "";
-        String plate = "";
-        if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
-            TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
-                    (TmpQrcode::getQrParam, qrParam));
-            if (null != tmpQrcode) {
-                plate = tmpQrcode.getPlateNum();
-                if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
-                    return new ApiResponse(ApiCode.CLOSE_SWITCH);
-                }
-                license = tmpQrcode.getPlateNum();
-                noticePhone = tmpQrcode.getPhoneNum();
-            }
-        } else {
-            Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getQrParam, qrParam));
-
-            if (null != qrcode) {
-                plate = qrcode.getPlateNum();
-                if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
-                    return new ApiResponse(ApiCode.CLOSE_SWITCH);
-                }
-                license = qrcode.getPlateNum();
-                noticePhone = qrcode.getPhoneNum();
-
-            }
-        }
-        Map<String, Object> map = LocationUtils.getLocation(lat, lng, aliYunProperties.getAddressKey());
-        String address = String.format("%s,%s", map.get("city"), map.get("district"));
-        CommonRequest request = new CommonRequest();
-        //request.setProtocol(ProtocolType.HTTPS);
-        request.setMethod(MethodType.POST);
-        request.setDomain(aliYunProperties.getSmsDomain());
-        request.setVersion(aliYunProperties.getVersion());
-        request.setAction(aliYunProperties.getSendSms());
-        request.putQueryParameter("SignName", aliYunProperties.getSignName());
-        //短信模板
-        request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateCode());
-        request.putQueryParameter("PhoneNumbers", noticePhone);
-        //模板中变量
-        request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address + "\"," +
-                "" + "" + "\"phone\":\"" + saoPhone + "\"}");
-        String finalPlate = plate;
-        new Thread(() -> {
-            super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
-        }).start();
+        log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]",openId,lat,lng);
         try {
-            CommonResponse response = client.getCommonResponse(request);
-            return new ApiResponse(ApiCode.OPEN_SWITCH);
-        } catch (ServerException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
+            String redisKey = String.format("expire:%s:%s", openId, qrParam);
+            Long isKey = stringRedisTemplate.getExpire(redisKey);
+            if (isKey > 0) {
+                return new ApiResponse(ApiCode.REQUEST_SUCCESS, isKey);
+            }
+            String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
+            stringRedisTemplate.opsForValue().set(redisKey, openId, 5, TimeUnit.MINUTES);
+            //扫码人的手机号
+            String saoPhone = "";
+            if (StringUtils.isNotEmpty(sessionKey)) {
+                String info = AESUtils.decrypt(encryptedData, sessionKey, iv, "UTF-8");
+                saoPhone = (String) JSONObject.parseObject(info).get("phoneNumber");
+            }
+            DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
+                    .getAccessKeyId(), aliYunProperties.getSecret());
+            IAcsClient client = new DefaultAcsClient(profile);
+            String license = "";
+            String noticePhone = "";
+            String plate = "";
+            if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
+                TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
+                        (TmpQrcode::getQrParam, qrParam));
+                if (null != tmpQrcode) {
+                    plate = tmpQrcode.getPlateNum();
+                    if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
+                        return new ApiResponse(ApiCode.CLOSE_SWITCH);
+                    }
+                    license = tmpQrcode.getPlateNum();
+                    noticePhone = tmpQrcode.getPhoneNum();
+                }
+            } else {
+                Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getQrParam, qrParam));
+                if (null != qrcode) {
+                    plate = qrcode.getPlateNum();
+                    if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
+                        return new ApiResponse(ApiCode.CLOSE_SWITCH);
+                    }
+                    license = qrcode.getPlateNum();
+                    noticePhone = qrcode.getPhoneNum();
+
+                }
+            }
+            Map<String, Object> map = LocationUtils.getLocation(lat, lng);
+            String address = String.format("%s,%s", map.get("city"), map.get("district"));
+            log.info("地址:[{}]",address);
+            CommonRequest request = new CommonRequest();
+            //request.setProtocol(ProtocolType.HTTPS);
+            request.setMethod(MethodType.POST);
+            request.setDomain(aliYunProperties.getSmsDomain());
+            request.setVersion(aliYunProperties.getVersion());
+            request.setAction(aliYunProperties.getSendSms());
+            request.putQueryParameter("SignName", aliYunProperties.getSignName());
+            //短信模板
+            request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateCode());
+            request.putQueryParameter("PhoneNumbers", noticePhone);
+            log.info("通知的手机号:[{}]",noticePhone);
+            //模板中变量
+            request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address + "\"," +
+                    "" + "" + "\"phone\":\"" + saoPhone + "\"}");
+            String finalPlate = plate;
+            new Thread(() -> {
+                super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
+            }).start();
+            try {
+                CommonResponse response = client.getCommonResponse(request);
+                return new ApiResponse(ApiCode.OPEN_SWITCH);
+            } catch (ServerException e) {
+                e.printStackTrace();
+            } catch (ClientException e) {
+                e.printStackTrace();
+            }
+            return new ApiResponse(ApiCode.OPERATOR_FAIL);
+        }catch (Exception e){
             e.printStackTrace();
         }
-        return new ApiResponse(ApiCode.OPERATOR_FAIL);
+        return ApiResponse.success();
     }
 
 
