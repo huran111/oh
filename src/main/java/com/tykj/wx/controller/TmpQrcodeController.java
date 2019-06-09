@@ -48,17 +48,15 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("rest/wx/tmp/qrcode")
-@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQrcode> {
+public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, TmpQrcode>*/ {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private ITmpQrcodeService tmpQrcodeService;
 
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
-
     @PostMapping(value = "/generateTmpQr")
-    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult)  {
+    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws IOException {
         log.info("生成体验码:" + userInfoDTO.toString());
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
@@ -66,33 +64,12 @@ public class TmpQrcodeController extends BaseController<ITmpQrcodeService, TmpQr
                 throw new BusinessException(ApiCode.EMPTY_PARAM, fieldError.getDefaultMessage());
             });
         }
-
         String redisOpenId = stringRedisTemplate.opsForValue().get(userInfoDTO.getOpenId());
         if (StringUtils.isNotEmpty(redisOpenId)) {
             Long seconds = stringRedisTemplate.getExpire(userInfoDTO.getOpenId());
             return new ApiResponse(ApiCode.BINDING, "您已生成体验码，请稍后再试", seconds);
         }
-        //删除之前得体验码
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("openId", userInfoDTO.getOpenId());
-        boolean gb = tmpQrcodeService.remove(queryWrapper);
-        log.info("删除是否成功:[{}]", gb);
-        TmpQrcode tmpQrcode = new TmpQrcode();
-        String qrParamId = UUIDUtils.getQrTmpUUID();
-        log.info("openID:" + userInfoDTO.getOpenId());
-        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl(SysConstant
-                .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
-                ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone()).setQrParam(UUIDUtils
-                .getQrTmpUUID());
-        WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
-        //生成二维码到指定目录
-        InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        try {
-            IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
-        } catch (IOException e) {
-
-        }
-        tmpQrcodeService.save(tmpQrcode);
+        TmpQrcode tmpQrcode = tmpQrcodeService.deleteOpenIdAndSaveTmpQrCode(userInfoDTO);
         stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
                 .MINUTES);
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
