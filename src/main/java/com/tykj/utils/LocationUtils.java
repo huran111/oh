@@ -29,11 +29,11 @@ public class LocationUtils {
      * @Author: Alan
      * @Date: 2018/6/1 21:14
      */
-    public static Map<String, Object> getLocation(String lat, String lng, String key) {
+    public static Map<String, Object> getLocation(String lat, String lng) {
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
         PropertiesUtil propertiesUtil = new PropertiesUtil("coordinates.properties");
-
+       String key= propertiesUtil.getStringProperty("KEY");
         // 参数解释：lng：经度，lat：维度。KEY：腾讯地图key，get_poi：返回状态。1返回，0不返回
         String urlString = "http://apis.map.qq.com/ws/geocoder/v1/?location=" + lat + "," + lng + "&key=" + key +
                 "&get_poi=1";
@@ -76,7 +76,7 @@ public class LocationUtils {
         // 测试
         String lng = "34.946476";//经度
         String lat = "113.170295";//维度
-        Map<String, Object> map = getLocation(lng, lat, KEY);
+        Map<String, Object> map = getLocation(lng, lat);
         System.out.println(map);
         System.out.println("国   籍：" + map.get("nation"));
         System.out.println("国家代码：" + map.get("nationCode"));
