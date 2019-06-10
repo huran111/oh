@@ -14,7 +14,6 @@ import javax.validation.constraints.Pattern;
 @Accessors(chain = true)
 public class UserInfoDTO {
     @NotNull(message = "手机号不能为空")
-    @Pattern(regexp = SysConstant.PHONE_CHECK,message = "请输入正确的手机号")
     private String phone;
     @NotNull(message = "车牌号不能为空")
     private String platNum;
