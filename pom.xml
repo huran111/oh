@@ -13,6 +13,8 @@
         <fastjson.version>1.2.29</fastjson.version>
         <java.version>1.8</java.version>
         <shiro.version>1.4.0</shiro.version>
+        <zookeeper.version>3.4.6</zookeeper.version>
+        <elastic-job.version>1.1.1</elastic-job.version>
 
     </properties>
 
@@ -26,7 +28,34 @@
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- elastic-job -->
+        <dependency>
+            <groupId>com.dangdang</groupId>
+            <artifactId>elastic-job-core</artifactId>
+            <version>${elastic-job.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>com.dangdang</groupId>
+            <artifactId>elastic-job-spring</artifactId>
+            <version>${elastic-job.version}</version>
+        </dependency>
+
+   <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
+       <exclusions>
+           <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-log4j12</artifactId>
+           </exclusion>
+           <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+           </exclusion>
+       </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -74,13 +103,11 @@
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.0.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.3</version>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -100,15 +127,11 @@
             <optional>true</optional>
         </dependency>
         <!-- tools -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>24.1-jre</version>
-        </dependency>
-        <dependency>
+
+      <!--  <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
@@ -151,6 +174,12 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.7.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--引入ui包-->
         <dependency>
@@ -162,6 +191,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+     <!--   <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>24.1-jre</version>
+        </dependency>-->
     </dependencies>
     <dependencyManagement>
         <!-- 不用spring-boot-starter-parent -->
