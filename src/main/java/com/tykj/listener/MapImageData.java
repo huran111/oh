@@ -7,6 +7,7 @@ package com.tykj.listener;/**
  * @date 2019/6/10
  */
 
+import com.tykj.utils.DateUtils;
 import com.tykj.wx.service.ITmpQrcodeService;
 
 import java.util.Map;
@@ -23,7 +24,7 @@ public class MapImageData {
     protected static Map<String, ITmpQrcodeService> queue = new ConcurrentHashMap<>();
 
     public static void addImageData(String id, ITmpQrcodeService tmpQrcodeService) {
-        String key = String.format("%s-%s", id, String.valueOf(System.currentTimeMillis()));
+        String key = String.format("%s-%s", id, String.valueOf(DateUtils.expriredDate(DateUtils.CreateDate())));
         queue.put(key, tmpQrcodeService);
     }
 }

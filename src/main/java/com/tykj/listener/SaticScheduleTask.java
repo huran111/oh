@@ -8,6 +8,7 @@ package com.tykj.listener;/**
  */
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tykj.utils.DateUtils;
 import com.tykj.wx.entity.TmpQrcode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -33,9 +34,9 @@ public class SaticScheduleTask {
         System.err.println("执行静态定时任务时间: " + LocalDateTime.now());
         MapImageData.queue.keySet().forEach(key -> {
             log.info("删除:[{}]", key);
-            String timeap = key.split("-")[1];
             String qrparam = key.split("-")[0];
-            if (System.currentTimeMillis() > Long.valueOf(timeap)) {
+            String timeap = key.split("-")[1];
+            if (DateUtils.CreateDate() > Long.valueOf(timeap)) {
                 FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + key + ".png"));
                 if (MapImageData.queue.containsKey(key)) {
                     MapImageData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
