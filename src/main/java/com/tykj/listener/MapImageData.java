@@ -9,7 +9,8 @@ package com.tykj.listener;/**
 
 import com.tykj.wx.service.ITmpQrcodeService;
 
-import java.util.concurrent.DelayQueue;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 胡冉
@@ -17,13 +18,12 @@ import java.util.concurrent.DelayQueue;
  * @Date 2019/6/10 9:51
  * @Version 2.0
  */
-public class DelayQueueData {
+public class MapImageData {
     // 延时队列 ,消费者从其中获取消息进行消费
-    protected static DelayQueue<DelayQueueDeleteImages> queue = new DelayQueue<DelayQueueDeleteImages>();
-
+    protected static Map<String, ITmpQrcodeService> queue = new ConcurrentHashMap<>();
 
     public static void addImageData(String id, ITmpQrcodeService tmpQrcodeService) {
-        queue.offer(new DelayQueueDeleteImages(id, 1000*60*5,tmpQrcodeService));
+        String.format("%s-%s", id, String.valueOf(System.currentTimeMillis()));
+        queue.put(id, tmpQrcodeService);
     }
-    
 }

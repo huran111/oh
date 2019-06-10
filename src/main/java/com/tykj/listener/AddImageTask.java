@@ -2,7 +2,6 @@ package com.tykj.listener;
 
 
 import com.tykj.wx.service.ITmpQrcodeService;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -26,6 +25,6 @@ public class AddImageTask extends Thread {
     @Override
     public void run() {
         log.info("添加任务到队列:[{}]", id);
-        DelayQueueData.addImageData(id,tmpQrcodeService);
+        MapImageData.addImageData(id,tmpQrcodeService);
     }
 }
