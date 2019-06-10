@@ -37,8 +37,11 @@ public class SaticScheduleTask {
             String qrparam = key.split("-")[0];
             if (System.currentTimeMillis() > Long.valueOf(timeap)) {
                 FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + key + ".png"));
-                MapImageData.queue.get(key.split("-")[1]).remove(new QueryWrapper<TmpQrcode>().lambda().eq
-                        (TmpQrcode::getQrParam, qrparam));
+                if (MapImageData.queue.containsKey(key)) {
+                    MapImageData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
+                            (TmpQrcode::getQrParam, qrparam));
+                }
+
             }
         });
     }
