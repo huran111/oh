@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 public class SaticScheduleTask {
     @Scheduled(fixedRate = 10000)
     private void configureTasks() {
-        System.err.println("执行静态定时任务时间: " + LocalDateTime.now());
+        log.info("执行静态定时任务时间:[{}]",LocalDateTime.now());
         MapImageData.queue.keySet().forEach(key -> {
             String qrparam = key.split("-")[0];
             String timeap = key.split("-")[1];
