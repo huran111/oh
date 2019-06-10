@@ -54,6 +54,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
         wxaConfig.setAppSecret(wxProperties.getAppSecret());
         WxaConfigKit.setWxaConfig(wxaConfig);
         String id = stringRedisTemplate.opsForValue().get(redisKey);
+        log.info("任务开始.........");
         if (StringUtils.isEmpty(id)) {
             String dey = sdf.format(new Date());
             try {
