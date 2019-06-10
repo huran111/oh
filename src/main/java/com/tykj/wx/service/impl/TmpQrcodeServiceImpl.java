@@ -114,7 +114,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
             Qrcode qrcode = new Qrcode();
             qrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setPhoneNum(userInfoDTO.getPhone())
                     .setPlateNum(userInfoDTO.getPlatNum().toUpperCase()).setQrParam(userInfoDTO.getQrParam())
-                    .setCreateTime(new Date()).setIsSwitch("1").setIsBinding("1").setImgUrl("/home/images/qrParam/"+userInfoDTO.getQrParam()+".png");
+                    .setCreateTime(new Date()).setIsSwitch("1").setIsBinding("1").setImgUrl("qrParam/"+userInfoDTO.getQrParam()+".png");
             this.qrcodeService.saveOrUpdate(qrcode);
             return new ApiResponse(ApiCode.BINDING_SUCCESS);
         }
