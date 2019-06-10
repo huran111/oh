@@ -53,26 +53,22 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
         wxaConfig.setAppId(wxProperties.getAppId());
         wxaConfig.setAppSecret(wxProperties.getAppSecret());
         WxaConfigKit.setWxaConfig(wxaConfig);
-        String id = stringRedisTemplate.opsForValue().get(redisKey);
-        log.info("任务开始.........");
+        String id = null;/*stringRedisTemplate.opsForValue().get(redisKey);*/
+
         if (StringUtils.isEmpty(id)) {
+            log.info("任务开始.........");
             String dey = sdf.format(new Date());
             try {
                 FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
                 for (int i = 0; i < 100; i++) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     //生成二维码到指定目录
                     log.info("生成二维码到指定目录");
                     String qrParamId = UUIDUtils.getUUID();
                     InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
                     IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
                 }
-                stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
+            //    stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.info(e.getMessage());
                 e.printStackTrace();
