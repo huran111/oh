@@ -33,10 +33,10 @@ public class SaticScheduleTask {
     private void configureTasks() {
         System.err.println("执行静态定时任务时间: " + LocalDateTime.now());
         MapImageData.queue.keySet().forEach(key -> {
-            log.info("删除:[{}]", key);
             String qrparam = key.split("-")[0];
             String timeap = key.split("-")[1];
             if (DateUtils.CreateDate() > Long.valueOf(timeap)) {
+                log.info("删除:[{}]", key);
                 FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + key + ".png"));
                 if (MapImageData.queue.containsKey(key)) {
                     MapImageData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
