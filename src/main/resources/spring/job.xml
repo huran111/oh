@@ -15,7 +15,7 @@
                    base-sleep-time-milliseconds="1000" max-sleep-time-milliseconds="3000"
                    max-retries="3"/>
 
-    <job:simple id="generateImages"
+    <job:simple id="generateImagesJob"
                 class="com.tykj.job.GenerateImagesJob"
                 registry-center-ref="regCenter" cron="0 30 0 * * ?"
                 sharding-total-count="1" misfire="false" description="生成二维码每次100张(10分钟后可再次点击)" overwrite="true"/>
