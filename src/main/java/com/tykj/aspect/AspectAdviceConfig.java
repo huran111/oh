@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -36,6 +37,7 @@ public class AspectAdviceConfig {
     ISysThirdReqLogService sysThirdReqLogService;
     @Autowired
     WxProperties wxProperties;
+    static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Pointcut("execution(* com.tykj.*.controller..*.*(..))")
     public void myPointcut() {
@@ -141,7 +143,7 @@ public class AspectAdviceConfig {
         }
         thirdReqLog.setId(UUID.randomUUID().toString().replace("-", "")).setReqUrl(request.getRequestURI().toString()
         ).setClassMethod(pjp.getSignature().getDeclaringTypeName() + "." + pjp.getSignature().getName()).setReqTime
-                (DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")).setHttpMethod(request.getMethod()).setReqIp
+                (sdf.format(new Date())).setHttpMethod(request.getMethod()).setReqIp
                 (request.getRemoteAddr()).setReqArgs(paramter).setErrMsg("0");
         return thirdReqLog;
     }
