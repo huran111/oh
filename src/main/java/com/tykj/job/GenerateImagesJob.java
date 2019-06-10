@@ -58,7 +58,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
         if (StringUtils.isEmpty(id)) {
             String dey = sdf.format(new Date());
             try {
-                FileUtils.forceMkdir(new File("D:/home/images/qrParam/" + dey));
+                FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
                 for (int i = 0; i < 100; i++) {
                     try {
@@ -70,7 +70,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                     log.info("生成二维码到指定目录");
                     String qrParamId = UUIDUtils.getUUID();
                     InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-                    IOUtils.toFile(inputStream, new File("D:/home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
+                    IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
                 }
                 stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
             } catch (IOException e) {
