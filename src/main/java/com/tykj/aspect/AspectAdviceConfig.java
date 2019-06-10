@@ -65,7 +65,6 @@ public class AspectAdviceConfig {
      */
     @Around("webLog()")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
-        log.info("开始拦截..............................");
         SysThirdReqLog thirdReqLog = combineRecord(pjp);
         long begin = System.nanoTime();
         Object o = null;
