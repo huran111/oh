@@ -36,6 +36,7 @@ public class DeleteImageTask extends Thread {
                     String imageName = DelayQueueData.queue.take().getId();
                     ITmpQrcodeService tmpQrcodeService = DelayQueueData.queue.take().getTmpQrcodeService();
                     if (null != tmpQrcodeService) {
+                        log.info("删除数据库:[{}]",imageName);
                         tmpQrcodeService.remove(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getQrParam,
                                 imageName));
                     }
