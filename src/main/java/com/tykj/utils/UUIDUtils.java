@@ -26,7 +26,7 @@ public class UUIDUtils {
     }
     public static String getUUID(){
 
-        return String.format("%s%s","tmp",UUID.randomUUID().toString().replace("-", ""));
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public static void main(String[] args) {
