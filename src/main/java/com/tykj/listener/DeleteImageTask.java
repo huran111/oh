@@ -21,7 +21,12 @@ public class DeleteImageTask extends Thread {
 
     @Override
     public void run() {
-        while (running) {
+        while (running ) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try {
                 if (DelayQueueData.queue.size()>0) {
                     String imageName = DelayQueueData.queue.take().getId();
