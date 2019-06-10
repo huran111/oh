@@ -9,14 +9,11 @@ import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import springfox.documentation.schema.Maps;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 生成文件
@@ -25,7 +22,7 @@ public class CodeGenerator {
     /**
      * 配置模块与表
      */
-    public static Map<String,List<String>> moduleTableMap = Maps.newHashMap();
+    public static Map<String,List<String>> moduleTableMap = new HashMap<>();
 
     static{
         moduleTableMap.put("wx", Arrays.asList("sys_third_req_log"));
