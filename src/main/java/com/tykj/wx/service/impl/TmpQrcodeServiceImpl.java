@@ -59,7 +59,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
      * @throws IOException
      */
     @Override
-    public TmpQrcode deleteOpenIdAndSaveTmpQrCode(UserInfoDTO userInfoDTO) throws IOException {
+    public TmpQrcode deleteOpenIdAndSaveTmpQrCode(UserInfoDTO userInfoDTO ) throws IOException {
         //删除之前得体验码
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("openId", userInfoDTO.getOpenId());
@@ -77,7 +77,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
         log.info("生成体验码的信息为:[{}]", tmpQrcode);
         tmpQrcodeService.save(tmpQrcode);
-        poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam()));
+        poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam(),tmpQrcodeService));
         return tmpQrcode;
     }
 
