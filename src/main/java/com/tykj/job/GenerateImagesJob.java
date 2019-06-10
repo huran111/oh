@@ -61,13 +61,13 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                 FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
                 log.info("生成二维码到指定目录");
-                for (int i = 0; i < 100; i++) {
+                for (int i = 0; i < 500; i++) {
                     //生成二维码到指定目录
                     String qrParamId = UUIDUtils.getUUID();
                     InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
                     IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
                 }
-                stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
+                stringRedisTemplate.opsForValue().set(redisKey, "1", 1L, TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.info(e.getMessage());
                 e.printStackTrace();
