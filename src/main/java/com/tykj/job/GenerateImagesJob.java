@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class generateImagesJob extends AbstractSimpleElasticJob {
+public class GenerateImagesJob extends AbstractSimpleElasticJob {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
     @Autowired
@@ -55,22 +55,25 @@ public class generateImagesJob extends AbstractSimpleElasticJob {
         WxaConfigKit.setWxaConfig(wxaConfig);
         String id = stringRedisTemplate.opsForValue().get(redisKey);
         if (StringUtils.isEmpty(id)) {
-            WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
-            for (int i = 0; i < 100; i++) {
-                //生成二维码到指定目录
-                String qrParamId = UUIDUtils.getUUID();
-                InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-                try {
-                    String dey = sdf.format(new Date());
-                    FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
+            String dey = sdf.format(new Date());
+            try {
+                FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
+
+                WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
+                for (int i = 0; i < 100; i++) {
+                    //生成二维码到指定目录
+                    String qrParamId = UUIDUtils.getUUID();
+                    InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
                     IOUtils.toFile(inputStream, new File("home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+                stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            stringRedisTemplate.opsForValue().set(redisKey, "1", 5L, TimeUnit.MINUTES);
-        } else {
-            log.info("请稍后再生成.....");
+        }else {
+            log.info("请稍后再试....");
         }
+
     }
+
 }
