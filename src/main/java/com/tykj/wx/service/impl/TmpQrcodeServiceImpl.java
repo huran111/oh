@@ -73,7 +73,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
         //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("H:/home/images/tmpQrParam/" + qrParamId + ".png"));
+        IOUtils.toFile(inputStream, new File("home/images/tmpQrParam/" + qrParamId + ".png"));
         log.info("生成体验码的信息为:[{}]", tmpQrcode);
         tmpQrcodeService.save(tmpQrcode);
         poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam()));
