@@ -94,7 +94,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
             if (userInfoDTO.getQrParam().contains(SysConstant.TMP_QRPARAM)) {
                 TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
                         (TmpQrcode::getOpenId, userInfoDTO.getOpenId()).eq(TmpQrcode::getQrParam, userInfoDTO
-                        .getQrParam())).setImgUrl("tmpQrParam/" + userInfoDTO.getQrParam() + ".png");
+                        .getQrParam()));
                 if (null != tmpQrcode) {
                     tmpQrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
                     tmpQrcodeService.updateById(tmpQrcode);
@@ -104,8 +104,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
                 Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getOpenId,
                         userInfoDTO.getOpenId()).eq(Qrcode::getQrParam, userInfoDTO.getQrParam()));
                 if (null != qrcode) {
-                    qrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum()).setImgUrl
-                            ("qrParam/" + userInfoDTO.getQrParam() + ".png");
+                    qrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
                     qrcodeService.updateById(qrcode);
                     return new ApiResponse(ApiCode.REQUEST_SUCCESS, qrcode);
                 }
