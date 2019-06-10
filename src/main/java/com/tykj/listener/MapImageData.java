@@ -23,7 +23,7 @@ public class MapImageData {
     protected static Map<String, ITmpQrcodeService> queue = new ConcurrentHashMap<>();
 
     public static void addImageData(String id, ITmpQrcodeService tmpQrcodeService) {
-        String.format("%s-%s", id, String.valueOf(System.currentTimeMillis()));
-        queue.put(id, tmpQrcodeService);
+        String key = String.format("%s-%s", id, String.valueOf(System.currentTimeMillis()));
+        queue.put(key, tmpQrcodeService);
     }
 }
