@@ -131,7 +131,7 @@ public class SendSms extends SendTemplateMsg {
             }).start();
             try {
                 CommonResponse response = client.getCommonResponse(request);
-                log.info("发送短信通知状态:[{}]",response.getHttpStatus());
+                log.info("发送短信通知状态:[{}],[{}]",response.getHttpStatus(),response.getData());
                 return new ApiResponse(ApiCode.OPEN_SWITCH);
             } catch (ServerException e) {
                 e.printStackTrace();
