@@ -1,9 +1,13 @@
 package com.tykj.listener;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.service.ITmpQrcodeService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -21,17 +25,25 @@ public class DeleteImageTask extends Thread {
 
     @Override
     public void run() {
-        while (running ) {
+        while (running) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             try {
-                if (DelayQueueData.queue.size()>0) {
+                if (DelayQueueData.queue.size() > 0) {
                     String imageName = DelayQueueData.queue.take().getId();
-                    log.info("删除临时二维码:[{}]",imageName);
-                    FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + imageName + ".png"));
+                    ITmpQrcodeService tmpQrcodeService = DelayQueueData.queue.take().getTmpQrcodeService();
+                    if (null != tmpQrcodeService) {
+                        tmpQrcodeService.remove(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getQrParam,
+                                imageName));
+                    }
+                    if (StringUtils.isNotEmpty(imageName)) {
+                        log.info("删除临时二维码:[{}]", imageName);
+                        FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + imageName + ".png"));
+                    }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

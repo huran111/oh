@@ -1,5 +1,6 @@
 package com.tykj.listener;
 
+import com.tykj.wx.service.ITmpQrcodeService;
 import lombok.Data;
 
 import java.util.concurrent.Delayed;
@@ -13,10 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 public class DelayQueueDeleteImages implements Delayed {
     private String id;
+    private ITmpQrcodeService tmpQrcodeService;
     private long time;
-    public DelayQueueDeleteImages(String id, long delayTime){
+    public DelayQueueDeleteImages(String id, long delayTime,ITmpQrcodeService tmpQrcodeService){
         this.id=id;
-        this.time= TimeUnit.NANOSECONDS.convert(delayTime, TimeUnit.MILLISECONDS) + System.nanoTime();  ;
+        this.time= TimeUnit.NANOSECONDS.convert(delayTime, TimeUnit.MILLISECONDS) + System.nanoTime();
+        this.tmpQrcodeService=tmpQrcodeService;
     }
     @Override
     public long getDelay(TimeUnit unit) {

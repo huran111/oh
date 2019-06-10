@@ -7,6 +7,8 @@ package com.tykj.listener;/**
  * @date 2019/6/10
  */
 
+import com.tykj.wx.service.ITmpQrcodeService;
+
 import java.util.concurrent.DelayQueue;
 
 /**
@@ -20,8 +22,8 @@ public class DelayQueueData {
     protected static DelayQueue<DelayQueueDeleteImages> queue = new DelayQueue<DelayQueueDeleteImages>();
 
 
-    public static void addImageData(String id) {
-        queue.offer(new DelayQueueDeleteImages(id, 1000*60*5));
+    public static void addImageData(String id, ITmpQrcodeService tmpQrcodeService) {
+        queue.offer(new DelayQueueDeleteImages(id, 1000*60*5,tmpQrcodeService));
     }
     
 }
