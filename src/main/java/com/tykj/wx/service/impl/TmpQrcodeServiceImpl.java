@@ -89,6 +89,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
      */
     @Override
     public ApiResponse editOrSave(UserInfoDTO userInfoDTO) throws Exception {
+        log.info("传递的参数:[{}]",userInfoDTO.toString());
         //编辑
         if (StringUtils.isNoneEmpty(userInfoDTO.getId()) && StringUtils.isNoneEmpty(userInfoDTO.getQrParam())) {
             if (userInfoDTO.getQrParam().contains(SysConstant.TMP_QRPARAM)) {
