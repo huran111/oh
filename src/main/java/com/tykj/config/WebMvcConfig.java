@@ -1,6 +1,5 @@
 package com.tykj.config;
 
-import com.tykj.core.support.PageHandlerMethodArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -17,16 +16,7 @@ import java.util.Locale;
  */
 @Configuration
 public class WebMvcConfig  extends WebMvcConfigurerAdapter {
-    /**
-     * 添加mvc参数处理器
-     * @param argumentResolvers
-     */
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-       // argumentResolvers.add(new ConditionHandlerMethodArgumentResolver());
-        argumentResolvers.add(new PageHandlerMethodArgumentResolver());
-        super.addArgumentResolvers(argumentResolvers);
-    }
+
 
     /**
      * 设置默认本地化
