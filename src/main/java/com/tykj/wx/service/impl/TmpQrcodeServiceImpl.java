@@ -7,6 +7,7 @@ import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
+import com.tykj.listener.AddImageTask;
 import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.dto.UserInfoDTO;
 import com.tykj.wx.entity.Qrcode;
@@ -25,6 +26,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -38,6 +43,8 @@ import java.util.Date;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode> implements ITmpQrcodeService {
+    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()+1, 100L, TimeUnit.MILLISECONDS, new
+            LinkedBlockingQueue<Runnable>());
     @Autowired
     ITmpQrcodeService tmpQrcodeService;
     @Autowired
@@ -60,15 +67,16 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         TmpQrcode tmpQrcode = new TmpQrcode();
         String qrParamId = UUIDUtils.getQrTmpUUID();
         log.info("openID:" + userInfoDTO.getOpenId());
-        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl(SysConstant
-                .DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch
-                ("1").setPlateNum(userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone());
+        tmpQrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setCreateTime(new Date()).setImgUrl
+                (SysConstant.DICTORY_TMP + qrParamId + ".png").setQrParam(qrParamId).setIsSwitch("1").setPlateNum
+                (userInfoDTO.getPlatNum()).setPhoneNum(userInfoDTO.getPhone());
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
         //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
-       log.info("生成体验码的信息为:[{}]",tmpQrcode);
+        IOUtils.toFile(inputStream, new File("H:/home/images/tmpQrParam/" + qrParamId + ".png"));
+        log.info("生成体验码的信息为:[{}]", tmpQrcode);
         tmpQrcodeService.save(tmpQrcode);
+        poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam()));
         return tmpQrcode;
     }
 
@@ -83,20 +91,19 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         //编辑
         if (StringUtils.isNoneEmpty(userInfoDTO.getId()) && StringUtils.isNoneEmpty(userInfoDTO.getQrParam())) {
             if (userInfoDTO.getQrParam().contains(SysConstant.TMP_QRPARAM)) {
-                TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>()
-                        .lambda().eq(TmpQrcode::getOpenId, userInfoDTO.getOpenId()).eq(TmpQrcode::getQrParam, userInfoDTO.getQrParam()));
+                TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
+                        (TmpQrcode::getOpenId, userInfoDTO.getOpenId()).eq(TmpQrcode::getQrParam, userInfoDTO
+                        .getQrParam()));
                 if (null != tmpQrcode) {
-                    tmpQrcode.setPhoneNum(userInfoDTO.getPhone())
-                            .setPlateNum(userInfoDTO.getPlatNum());
+                    tmpQrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
                     tmpQrcodeService.updateById(tmpQrcode);
                     return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
                 }
             } else {
-                Qrcode tmpQrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>()
-                        .lambda().eq(Qrcode::getOpenId, userInfoDTO.getOpenId()).eq(Qrcode::getQrParam, userInfoDTO.getQrParam()));
+                Qrcode tmpQrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getOpenId,
+                        userInfoDTO.getOpenId()).eq(Qrcode::getQrParam, userInfoDTO.getQrParam()));
                 if (null != tmpQrcode) {
-                    tmpQrcode.setPhoneNum(userInfoDTO.getPhone())
-                            .setPlateNum(userInfoDTO.getPlatNum());
+                    tmpQrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
                     qrcodeService.updateById(tmpQrcode);
                     return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
                 }
@@ -104,12 +111,9 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         } else {
             //只保存 线下的
             Qrcode qrcode = new Qrcode();
-            qrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId())
-                    .setPhoneNum(userInfoDTO.getPhone())
-                    .setPlateNum(userInfoDTO.getPlatNum().toUpperCase())
-                    .setQrParam(userInfoDTO.getQrParam())
-                    .setCreateTime(new Date()).setIsSwitch("1")
-                    .setIsBinding("1").setImgUrl("");
+            qrcode.setId(UUIDUtils.getUUID()).setOpenId(userInfoDTO.getOpenId()).setPhoneNum(userInfoDTO.getPhone())
+                    .setPlateNum(userInfoDTO.getPlatNum().toUpperCase()).setQrParam(userInfoDTO.getQrParam())
+                    .setCreateTime(new Date()).setIsSwitch("1").setIsBinding("1").setImgUrl("");
             this.qrcodeService.saveOrUpdate(qrcode);
             return new ApiResponse(ApiCode.BINDING_SUCCESS);
         }
@@ -125,7 +129,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
      */
     @Override
     public ApiResponse isbindingUserInfo(String qrParam, String openId) {
-        log.info("qrParam:[{}],openId:[{}]",qrParam,openId);
+        log.info("qrParam:[{}],openId:[{}]", qrParam, openId);
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             QueryWrapper<TmpQrcode> queryWrapper = new QueryWrapper<TmpQrcode>();
             queryWrapper.lambda().eq(TmpQrcode::getQrParam, qrParam);
@@ -176,8 +180,8 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
     @Override
     public ApiResponse onOrOffQr(String qrParam, String openId, String isSwitch) {
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
-            TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getQrParam, qrParam)
-                    .eq(TmpQrcode::getOpenId, openId));
+            TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
+                    (TmpQrcode::getQrParam, qrParam).eq(TmpQrcode::getOpenId, openId));
             if (null != tmpQrcode) {
                 tmpQrcode.setIsSwitch(isSwitch);
                 tmpQrcodeService.updateById(tmpQrcode);
@@ -197,12 +201,13 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
 
     /**
      * 删除临时码
+     *
      * @param qrParam
      * @param openId
      * @return
      */
     @Override
-    public ApiResponse deleteTmpQr(String qrParam, String openId) throws Exception{
+    public ApiResponse deleteTmpQr(String qrParam, String openId) throws Exception {
         if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
             QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<TmpQrcode>();
             qrcodeQueryWrapper.lambda().eq(TmpQrcode::getQrParam, qrParam).eq(TmpQrcode::getOpenId, openId);
