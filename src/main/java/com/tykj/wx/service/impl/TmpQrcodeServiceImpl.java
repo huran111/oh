@@ -43,7 +43,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode> implements ITmpQrcodeService {
-    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()+1, 100L, TimeUnit.MILLISECONDS, new
+    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() + 1, 100L, TimeUnit.MILLISECONDS, new
             LinkedBlockingQueue<Runnable>());
     @Autowired
     ITmpQrcodeService tmpQrcodeService;
@@ -93,19 +94,20 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
             if (userInfoDTO.getQrParam().contains(SysConstant.TMP_QRPARAM)) {
                 TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
                         (TmpQrcode::getOpenId, userInfoDTO.getOpenId()).eq(TmpQrcode::getQrParam, userInfoDTO
-                        .getQrParam()));
+                        .getQrParam())).setImgUrl("tmpQrParam/" + userInfoDTO.getQrParam() + ".png");
                 if (null != tmpQrcode) {
                     tmpQrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
                     tmpQrcodeService.updateById(tmpQrcode);
                     return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
                 }
             } else {
-                Qrcode tmpQrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getOpenId,
+                Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getOpenId,
                         userInfoDTO.getOpenId()).eq(Qrcode::getQrParam, userInfoDTO.getQrParam()));
-                if (null != tmpQrcode) {
-                    tmpQrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum());
-                    qrcodeService.updateById(tmpQrcode);
-                    return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
+                if (null != qrcode) {
+                    qrcode.setPhoneNum(userInfoDTO.getPhone()).setPlateNum(userInfoDTO.getPlatNum()).setImgUrl
+                            ("qrParam/" + userInfoDTO.getQrParam() + ".png");
+                    qrcodeService.updateById(qrcode);
+                    return new ApiResponse(ApiCode.REQUEST_SUCCESS, qrcode);
                 }
             }
         } else {
