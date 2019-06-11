@@ -43,7 +43,8 @@ public class GlobalDefultExceptionHandler {
         }else {
             e.printStackTrace();
         }
-        log.info("==================:"+e.getMessage());
+        e.printStackTrace();
+        log.info("==================:[{}],[{}]",e.getCause(),e.getStackTrace());
         //未知错误
         return ApiResponse.error();
     }
