@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
  */
 @Slf4j
 public abstract class SendTemplateMsg {
-    public void sendTemplateMsg(String openId, String plate, String address, String token) {
+    public void sendTemplateMsg(String openId, String plate, String address, String token,String fromId) {
         log.info("发送模板消息:openId:[{}] plate:[{}] address:[{}],token:[{}]"
                 , openId, plate, address, token);
         try {
@@ -33,7 +33,7 @@ public abstract class SendTemplateMsg {
                 WxaTemplate wxaTemplate=new WxaTemplate();
                 wxaTemplate.setTemplate_id("QG4_bKOjuNdkWOIVqk8jRUykN0o9Y1lsP0YKH9KeGmw");
                 wxaTemplate.setEmphasis_keyword("keyword1.DATA")
-                        .setTouser(openId)
+                        .setTouser(openId).setForm_id(fromId)
                         .add("keyword1",plate,"000")
                         .add("keyword2",df.format(LocalDateTime.now()), "#333")
 
@@ -46,7 +46,7 @@ public abstract class SendTemplateMsg {
                 WxaTemplate wxaTemplate=new WxaTemplate();
                 wxaTemplate.setTemplate_id("QG4_bKOjuNdkWOIVqk8jRUykN0o9Y1lsP0YKH9KeGmw");
                 wxaTemplate.setEmphasis_keyword("keyword1.DATA")
-                        .setTouser(openId)
+                        .setTouser(openId).setForm_id(fromId)
                         .add("keyword1",plate,"000")
                         .add("keyword2",df.format(LocalDateTime.now()), "#333")
                         .add("keyword3", address, "#333")
