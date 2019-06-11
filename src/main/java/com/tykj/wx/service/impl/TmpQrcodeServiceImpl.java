@@ -181,6 +181,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
 
     @Override
     public ApiResponse onOrOffQr(String qrParam, String openId, String isSwitch) {
+        log.info("开启或者关闭体验码参数:[{}],[{}],[{}]",qrParam,openId,isSwitch);
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq
                     (TmpQrcode::getQrParam, qrParam).eq(TmpQrcode::getOpenId, openId));
