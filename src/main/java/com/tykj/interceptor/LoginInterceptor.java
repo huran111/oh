@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
  * 登陆拦截器
  */
 @Slf4j
-@Component
 public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     private IInvalidQrparamService iInvalidQrparamService;
@@ -37,7 +36,6 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
             Exception {
         log.info("======================>>>拦截开始..............[{}]", handler.toString());
-        log.info("iInvalidQrparamService:[{}]",iInvalidQrparamService.toString());
       /*
         String sessionId = request.getParameter(SysConstant.SESSION_KEY);
         IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
