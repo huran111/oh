@@ -36,7 +36,6 @@ public abstract class SendTemplateMsg {
                         .setTouser(openId).setForm_id(fromId)
                         .add("keyword1",plate,"000")
                         .add("keyword2",df.format(LocalDateTime.now()), "#333")
-
                         .add("keyword4", message, "#333")
                         .add("keyword5", remark);
                 ApiResult apiResult= wxaTemplateApi.send(wxaTemplate);
