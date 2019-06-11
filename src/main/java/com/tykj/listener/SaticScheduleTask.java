@@ -9,9 +9,12 @@ package com.tykj.listener;/**
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tykj.utils.DateUtils;
+import com.tykj.wx.entity.InvalidQrparam;
 import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.service.IInvalidQrparamService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +32,9 @@ import java.time.LocalDateTime;
 @Configuration
 @EnableScheduling
 public class SaticScheduleTask {
+    @Autowired
+    private IInvalidQrparamService iInvalidQrparamService;
+
     @Scheduled(fixedRate = 10000)
     private void configureTasks() {
         log.info("执行静态定时任务时间:[{}]", LocalDateTime.now());
@@ -39,6 +45,9 @@ public class SaticScheduleTask {
                 log.info("删除:[{}]", key);
                 FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + key + ".png"));
                 if (MapImageData.queue.containsKey(key)) {
+                    InvalidQrparam invalidQrparam = new InvalidQrparam();
+                    invalidQrparam.setId(qrparam);
+                    iInvalidQrparamService.save(invalidQrparam);
                     MapImageData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
                             (TmpQrcode::getQrParam, qrparam));
                 }
