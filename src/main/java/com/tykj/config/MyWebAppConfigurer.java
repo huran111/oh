@@ -16,7 +16,7 @@ public class MyWebAppConfigurer extends WebMvcConfigurerAdapter {
      * 注入拦截器bean
      */
     @Bean
-    LoginInterceptor webHandlerInterceptor(){
+   public LoginInterceptor loginInterceptor(){
         return  new LoginInterceptor();
     }
 
