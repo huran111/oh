@@ -1,6 +1,7 @@
 package com.tykj.config;
 
 import com.tykj.interceptor.LoginInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -11,6 +12,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @Configuration
 public class MyWebAppConfigurer extends WebMvcConfigurerAdapter {
+    /**
+     * 注入拦截器bean
+     */
+    @Bean
+    LoginInterceptor webHandlerInterceptor(){
+        return  new LoginInterceptor();
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //添加登陆拦截器
