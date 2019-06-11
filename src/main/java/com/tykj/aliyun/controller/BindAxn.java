@@ -60,6 +60,7 @@ public class BindAxn extends SendTemplateMsg {
     @RequestMapping("/getphonex")
     public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
             qrParam) throws Exception {
+        log.info("打电话:[{}],[{}]",id,qrParam);
         DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
                 .getAccessKeyId(), aliYunProperties.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);

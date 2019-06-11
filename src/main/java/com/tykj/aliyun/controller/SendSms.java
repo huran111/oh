@@ -64,7 +64,7 @@ public class SendSms extends SendTemplateMsg {
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
             qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng) throws
             Exception {
-        log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]",openId,lat,lng);
+        log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]", openId, lat, lng);
         try {
             String redisKey = String.format("expire:%s:%s", openId, qrParam);
           /*  Long isKey = stringRedisTemplate.getExpire(redisKey);
@@ -72,12 +72,14 @@ public class SendSms extends SendTemplateMsg {
                 return new ApiResponse(ApiCode.REQUEST_SUCCESS, isKey);
             }*/
             String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
-          //  stringRedisTemplate.opsForValue().set(redisKey, openId, 5, TimeUnit.MINUTES);
+            //  stringRedisTemplate.opsForValue().set(redisKey, openId, 5, TimeUnit.MINUTES);
             //扫码人的手机号
             String saoPhone = "";
             if (StringUtils.isNotEmpty(sessionKey)) {
                 String info = AESUtils.decrypt(encryptedData, sessionKey, iv, "UTF-8");
                 saoPhone = (String) JSONObject.parseObject(info).get("phoneNumber");
+            } else {
+                return ApiResponse.error();
             }
             DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
                     .getAccessKeyId(), aliYunProperties.getSecret());
@@ -95,9 +97,12 @@ public class SendSms extends SendTemplateMsg {
                     }
                     license = tmpQrcode.getPlateNum();
                     noticePhone = tmpQrcode.getPhoneNum();
+                } else {
+                    return ApiResponse.error();
                 }
             } else {
-                Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getQrParam, qrParam));
+                Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getQrParam,
+                        qrParam));
                 if (null != qrcode) {
                     plate = qrcode.getPlateNum();
                     if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
@@ -105,12 +110,13 @@ public class SendSms extends SendTemplateMsg {
                     }
                     license = qrcode.getPlateNum();
                     noticePhone = qrcode.getPhoneNum();
-
+                } else {
+                    return ApiResponse.error();
                 }
             }
             Map<String, Object> map = LocationUtils.getLocation(lat, lng);
             String address = String.format("%s,%s", map.get("city"), map.get("district"));
-            log.info("地址:[{}]",address);
+            log.info("地址:[{}]", address);
             CommonRequest request = new CommonRequest();
             //request.setProtocol(ProtocolType.HTTPS);
             request.setMethod(MethodType.POST);
@@ -121,17 +127,17 @@ public class SendSms extends SendTemplateMsg {
             //短信模板
             request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateCode());
             request.putQueryParameter("PhoneNumbers", noticePhone);
-            log.info("通知的手机号:[{}],扫码的手机号：[{}]",noticePhone,saoPhone);
+            log.info("通知的手机号:[{}],扫码的手机号：[{}]", noticePhone, saoPhone);
             //模板中变量
-            request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address + "\"," +
-                    "" + "" + "\"phone\":\"" + saoPhone + "\"}");
+            request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address +
+                    "\"," + "" + "" + "\"phone\":\"" + saoPhone + "\"}");
             String finalPlate = plate;
             new Thread(() -> {
-             //   super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
+                //   super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
             }).start();
             try {
                 CommonResponse response = client.getCommonResponse(request);
-                log.info("发送短信通知状态:[{}],[{}]",response.getHttpStatus(),response.getData());
+                log.info("发送短信通知状态:[{}],[{}]", response.getHttpStatus(), response.getData());
                 return new ApiResponse(ApiCode.OPEN_SWITCH);
             } catch (ServerException e) {
                 e.printStackTrace();
@@ -139,7 +145,7 @@ public class SendSms extends SendTemplateMsg {
                 e.printStackTrace();
             }
             return new ApiResponse(ApiCode.OPERATOR_FAIL);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ApiResponse.success();
