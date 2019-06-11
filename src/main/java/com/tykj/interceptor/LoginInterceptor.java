@@ -12,10 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStreamWriter;
 
 /**
  * 登陆拦截器
@@ -39,6 +37,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
             Exception {
         log.info("======================>>>拦截开始..............[{}]", handler.toString());
+        log.info("iInvalidQrparamService:[{}]",iInvalidQrparamService.toString());
       /*
         String sessionId = request.getParameter(SysConstant.SESSION_KEY);
         IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
@@ -55,6 +54,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }*/
         String qrParam = request.getParameter("qrParam");
         if (StringUtils.isNotEmpty(qrParam)) {
+            log.info("拦截qrParam:[{}]",qrParam);
             InvalidQrparam invalidQrparam = iInvalidQrparamService.getById(qrParam);
             if (null != invalidQrparam) {
                 return false;
