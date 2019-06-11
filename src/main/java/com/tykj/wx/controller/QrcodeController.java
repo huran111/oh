@@ -104,6 +104,7 @@ public class QrcodeController extends Controller {
     @GetMapping(value = "deleteTmpQr")
     public ApiResponse deleteTmpQr(@RequestParam(value = "qrParam") String qrParam,
                                    @RequestParam(value = "openId") String openId) throws Exception {
+        log.info("删除体验码参数:[{}],[{}]",qrParam,openId);
         ApiResponse apiResponse=  tmpQrcodeService.deleteTmpQr(qrParam,openId);
         return  apiResponse;
 
