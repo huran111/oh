@@ -23,7 +23,7 @@ public class MyWebAppConfigurer extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //添加登陆拦截器
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(loginInterceptor())
                 //.excludePathPatterns("/", "/rest/wx/login", "/rest/wx/logout", "/rest/wx/**")
                 .excludePathPatterns("/")
                 .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/error", "/swagger-ui.html/**");
