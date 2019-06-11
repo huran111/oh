@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.jfinal.weixin.sdk.api.ApiConfigKit;
 import com.jfinal.weixin.sdk.cache.IAccessTokenCache;
 import com.tykj.common.SysConstant;
+import com.tykj.wx.entity.InvalidQrparam;
+import com.tykj.wx.service.IInvalidQrparamService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,8 +21,12 @@ import java.io.OutputStreamWriter;
  */
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
+    @Autowired
+    private IInvalidQrparamService iInvalidQrparamService;
+
     /**
      * 访问controller之前被调用
+     *
      * @param request
      * @param response
      * @param handler
@@ -26,7 +34,9 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
+            Exception {
+        log.info("======================>>>拦截开始..............[{}]", handler.toString());
       /*
         String sessionId = request.getParameter(SysConstant.SESSION_KEY);
         IAccessTokenCache accessTokenCache = ApiConfigKit.getAccessTokenCache();
@@ -41,12 +51,19 @@ public class LoginInterceptor implements HandlerInterceptor {
             // response.sendRedirect(request.getContextPath()+"/");
             return false;
         }*/
-        log.info("======================>>>拦截开始..............[{}]",handler.toString());
+        String qrParam = request.getParameter("qrParam");
+        if (StringUtils.isNotEmpty(qrParam)) {
+            InvalidQrparam invalidQrparam = iInvalidQrparamService.getById(qrParam);
+            if (null != invalidQrparam) {
+                return false;
+            }
+        }
         return true;
     }
 
     /**
      * 访问controller之后 访问视图之前被调用
+     *
      * @param httpServletRequest
      * @param httpServletResponse
      * @param o
@@ -54,12 +71,14 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     @Override
-    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
+    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o,
+                           ModelAndView modelAndView) throws Exception {
 
     }
 
     /**
      * 访问视图之后被调用
+     *
      * @param httpServletRequest
      * @param httpServletResponse
      * @param o
@@ -67,7 +86,8 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     @Override
-    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                Object o, Exception e) throws Exception {
     }
 
 }
