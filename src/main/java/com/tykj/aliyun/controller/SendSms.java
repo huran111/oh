@@ -62,7 +62,8 @@ public class SendSms extends SendTemplateMsg {
     @RequestMapping("/send")
     public ApiResponse getPhone(@RequestParam(value = "encryptedData") String encryptedData, @RequestParam(value =
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
-            qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng) throws
+                                        qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng
+            , @RequestParam(value = "fromId",required = false) String fromId) throws
             Exception {
         log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]", openId, lat, lng);
         try {
@@ -127,7 +128,7 @@ public class SendSms extends SendTemplateMsg {
                     "\"," + "" + "" + "\"phone\":\"" + saoPhone + "\"}");
             String finalPlate = plate;
             new Thread(() -> {
-                  super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
+                super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(),fromId);
             }).start();
             try {
                 CommonResponse response = client.getCommonResponse(request);
