@@ -11,15 +11,16 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.List;
 import java.util.Locale;
+
 /**
- * @author  huran
+ * @author huran
  */
 @Configuration
-public class WebMvcConfig  extends WebMvcConfigurerAdapter {
-
+public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     /**
      * 设置默认本地化
+     *
      * @return
      */
     @Bean
@@ -31,6 +32,7 @@ public class WebMvcConfig  extends WebMvcConfigurerAdapter {
 
     /**
      * 国际化相关
+     *
      * @return
      */
     @Bean
@@ -42,6 +44,7 @@ public class WebMvcConfig  extends WebMvcConfigurerAdapter {
 
     /**
      * 国际化相关
+     *
      * @param registry
      */
     @Override
