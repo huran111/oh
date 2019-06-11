@@ -8,6 +8,7 @@ import com.tykj.wx.entity.InvalidQrparam;
 import com.tykj.wx.service.IInvalidQrparamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -20,6 +21,7 @@ import java.io.OutputStreamWriter;
  * 登陆拦截器
  */
 @Slf4j
+@Component
 public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     private IInvalidQrparamService iInvalidQrparamService;
