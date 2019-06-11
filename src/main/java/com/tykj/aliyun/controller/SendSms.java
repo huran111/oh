@@ -66,13 +66,7 @@ public class SendSms extends SendTemplateMsg {
             Exception {
         log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]", openId, lat, lng);
         try {
-            String redisKey = String.format("expire:%s:%s", openId, qrParam);
-          /*  Long isKey = stringRedisTemplate.getExpire(redisKey);
-            if (isKey > 0) {
-                return new ApiResponse(ApiCode.REQUEST_SUCCESS, isKey);
-            }*/
             String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
-            //  stringRedisTemplate.opsForValue().set(redisKey, openId, 5, TimeUnit.MINUTES);
             //扫码人的手机号
             String saoPhone = "";
             if (StringUtils.isNotEmpty(sessionKey)) {
@@ -133,7 +127,7 @@ public class SendSms extends SendTemplateMsg {
                     "\"," + "" + "" + "\"phone\":\"" + saoPhone + "\"}");
             String finalPlate = plate;
             new Thread(() -> {
-                //   super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
+                  super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr());
             }).start();
             try {
                 CommonResponse response = client.getCommonResponse(request);
