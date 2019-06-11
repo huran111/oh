@@ -211,7 +211,7 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
      */
     @Override
     public ApiResponse deleteTmpQr(String qrParam, String openId) throws Exception {
-        if (SysConstant.TMP_QRPARAM.equals(qrParam)) {
+        if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<TmpQrcode>();
             qrcodeQueryWrapper.lambda().eq(TmpQrcode::getQrParam, qrParam).eq(TmpQrcode::getOpenId, openId);
             tmpQrcodeService.remove(qrcodeQueryWrapper);
