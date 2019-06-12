@@ -79,7 +79,7 @@ public class BindAxn extends SendTemplateMsg {
                 String finalPlate = plate;
                 try {
                     new Thread(() -> {
-                        super.sendTemplateMsg(finalOpenId, finalPlate, null, WxaAccessTokenApi.getAccessTokenStr(),
+                        super.sendTemplateMsg(finalOpenId, finalPlate, "暂无", WxaAccessTokenApi.getAccessTokenStr(),
                                 fromId);
                     }).start();
                 } catch (Exception e) {
@@ -100,7 +100,7 @@ public class BindAxn extends SendTemplateMsg {
                 String finalPlate = plate;
                 try {
                     new Thread(() -> {
-                        super.sendTemplateMsg(finalOpenId, finalPlate, null, WxaAccessTokenApi.getAccessTokenStr(),
+                        super.sendTemplateMsg(finalOpenId, finalPlate, "暂无", WxaAccessTokenApi.getAccessTokenStr(),
                                 fromId);
                     }).start();
                 } catch (Exception e) {
