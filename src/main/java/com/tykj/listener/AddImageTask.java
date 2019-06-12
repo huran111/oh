@@ -25,6 +25,6 @@ public class AddImageTask extends Thread {
     @Override
     public void run() {
         log.info("添加任务到队列:[{}]", id);
-        MapImageData.addImageData(id,tmpQrcodeService);
+        SysDeleteData.addImageData(id,tmpQrcodeService);
     }
 }

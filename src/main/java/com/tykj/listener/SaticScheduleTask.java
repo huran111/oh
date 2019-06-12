@@ -1,17 +1,12 @@
-package com.tykj.listener;/**
- * <pre>
- * TODO：
- * </pre>
- *
- * @author BUCHU
- * @date 2019/6/10
- */
+package com.tykj.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tykj.utils.DateUtils;
 import com.tykj.wx.entity.InvalidQrparam;
 import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.entity.TmpqrcodeRecord;
 import com.tykj.wx.service.IInvalidQrparamService;
+import com.tykj.wx.service.ITmpqrcodeRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.time.LocalDateTime;
+
+
 
 /**
  * @author 胡冉
@@ -34,25 +31,47 @@ import java.time.LocalDateTime;
 public class SaticScheduleTask {
     @Autowired
     private IInvalidQrparamService iInvalidQrparamService;
-
-    @Scheduled(fixedRate = 10000)
+    @Autowired
+    private ITmpqrcodeRecordService tmpqrcodeRecordService;
+    /**
+     * 删除临时体验码
+     */
+    @Scheduled(fixedRate =10000)
     private void configureTasks() {
-        log.info("执行静态定时任务时间:[{}]", LocalDateTime.now());
-        MapImageData.queue.keySet().forEach(key -> {
+        log.info("删除临时挪车体验码:[{}]", LocalDateTime.now());
+        SysDeleteData.queue.keySet().forEach(key -> {
             String qrparam = key.split("-")[0];
             String timeap = key.split("-")[1];
             if (DateUtils.CreateDate() > Long.valueOf(timeap)) {
                 log.info("删除:[{}]", key);
                 FileUtils.deleteQuietly(new File("/home/images/tmpQrParam/" + key + ".png"));
-                if (MapImageData.queue.containsKey(key)) {
+                if (SysDeleteData.queue.containsKey(key)) {
                     InvalidQrparam invalidQrparam = new InvalidQrparam();
                     invalidQrparam.setId(qrparam);
                     iInvalidQrparamService.save(invalidQrparam);
-                    MapImageData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
+                    SysDeleteData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
                             (TmpQrcode::getQrParam, qrparam));
                 }
-                MapImageData.queue.remove(key);
+                SysDeleteData.tmpRecord.add(qrparam);
+                SysDeleteData.queue.remove(key);
             }
         });
+    }
+
+    /**
+     * 删除临时挪车记录
+     */
+    @Scheduled(cron = "0 0 23 * * ?")
+    private void deleteTmpQrParam(){
+        log.info("删除临时挪车记录:[{}]", LocalDateTime.now());
+        try {
+            SysDeleteData.tmpRecord.forEach(x->{
+                tmpqrcodeRecordService.remove(new QueryWrapper<TmpqrcodeRecord>()
+                        .lambda().eq(TmpqrcodeRecord::getQrParam,x));
+                SysDeleteData.tmpRecord.remove(x);
+            });
+        }catch (Exception e){
+            log.info("删除临时挪车记录:[{}]",e.getCause());
+        }
     }
 }
