@@ -18,13 +18,19 @@ import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
+import com.tykj.listener.SysDeleteData;
 import com.tykj.msg.SendTemplateMsg;
 import com.tykj.utils.AESUtils;
 import com.tykj.utils.LocationUtils;
+import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.entity.Qrcode;
+import com.tykj.wx.entity.QrcodeRecord;
 import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.entity.TmpqrcodeRecord;
+import com.tykj.wx.service.IQrcodeRecordService;
 import com.tykj.wx.service.IQrcodeService;
 import com.tykj.wx.service.ITmpQrcodeService;
+import com.tykj.wx.service.ITmpqrcodeRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +65,10 @@ public class SendSms extends SendTemplateMsg {
     private IQrcodeService qrcodeService;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
+    @Autowired
+    private ITmpqrcodeRecordService tmpqrcodeRecordService;
+    @Autowired
+    private IQrcodeRecordService qrcodeRecordService;
     @RequestMapping("/send")
     public ApiResponse getPhone(@RequestParam(value = "encryptedData") String encryptedData, @RequestParam(value =
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
@@ -137,6 +147,37 @@ public class SendSms extends SendTemplateMsg {
             try {
                 CommonResponse response = client.getCommonResponse(request);
                 log.info("发送短信通知状态:[{}],[{}]", response.getHttpStatus(), response.getData());
+                if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
+                    try {
+                        String finalNoticePhone = noticePhone;
+                        new Thread(() -> {
+                            SysDeleteData.tmpRecord.add(qrParam);
+                            TmpqrcodeRecord record = new TmpqrcodeRecord();
+                            record.setId(UUIDUtils.getUUID())
+                                    .setCreateTime(new Date()).setPhone(finalNoticePhone).setQrParam(qrParam).setFlag("1");
+                            if(response.getHttpStatus()==200){
+                                record.setStatus("1");
+                            }else {
+                                record.setStatus("2");
+                            }
+                            tmpqrcodeRecordService.save(record);
+                        }).start();
+                    } catch (Exception e) {
+                        log.info("保存临时二维码记录:[{}]", e.getCause());
+                    }
+                } else {
+                    try {
+                        String finalNoticePhone1 = noticePhone;
+                        new Thread(() -> {
+                            QrcodeRecord record = new QrcodeRecord();
+                            record.setId(UUIDUtils.getUUID())
+                                    .setCreateTime(new Date()).setPhone(finalNoticePhone1).setQrParam(qrParam).setFlag("1");
+                            qrcodeRecordService.save(record);
+                        }).start();
+                    } catch (Exception e) {
+                        log.info("保存二维码记录:[{}]", e.getCause());
+                    }
+                }
                 return new ApiResponse(ApiCode.OPEN_SWITCH);
             } catch (ServerException e) {
                 e.printStackTrace();

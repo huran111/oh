@@ -14,25 +14,29 @@ import com.tykj.aliyun.properties.AliYunProperties;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
+import com.tykj.listener.SysDeleteData;
 import com.tykj.msg.SendTemplateMsg;
 import com.tykj.utils.DateUtils;
+import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.entity.Qrcode;
+import com.tykj.wx.entity.QrcodeRecord;
 import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.entity.TmpqrcodeRecord;
+import com.tykj.wx.service.IQrcodeRecordService;
 import com.tykj.wx.service.IQrcodeService;
 import com.tykj.wx.service.ITmpQrcodeService;
+import com.tykj.wx.service.ITmpqrcodeRecordService;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.asm.Advice;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,6 +58,10 @@ public class BindAxn extends SendTemplateMsg {
     private IQrcodeService qrcodeService;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private ITmpqrcodeRecordService tmpqrcodeRecordService;
+    @Autowired
+    private IQrcodeRecordService qrcodeRecordService;
 
     @RequestMapping("/getphonex")
     public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
@@ -85,6 +93,7 @@ public class BindAxn extends SendTemplateMsg {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
         } else {
             Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getId, id).eq
@@ -129,6 +138,41 @@ public class BindAxn extends SendTemplateMsg {
         PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
         stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
         String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
+        if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
+            try {
+                new Thread(() -> {
+                    SysDeleteData.tmpRecord.add(qrParam);
+                    TmpqrcodeRecord record = new TmpqrcodeRecord();
+                    record.setId(UUIDUtils.getUUID())
+                            .setCreateTime(new Date()).setPhone(phone).setQrParam(qrParam).setFlag("2");
+                    if(response.getHttpStatus()==200){
+                        record.setStatus("1");
+                    }else {
+                        record.setStatus("2");
+                    }
+                    tmpqrcodeRecordService.save(record);
+                }).start();
+            } catch (Exception e) {
+                log.info("保存临时二维码记录:[{}]", e.getCause());
+            }
+        } else {
+            try {
+                new Thread(() -> {
+                    QrcodeRecord record = new QrcodeRecord();
+                    record.setId(UUIDUtils.getUUID())
+                            .setCreateTime(new Date()).setPhone(phone).setQrParam(qrParam).setFlag("2");
+                    if(response.getHttpStatus()==200){
+                        record.setStatus("1");
+                    }else {
+                        record.setStatus("2");
+                    }
+                    qrcodeRecordService.save(record);
+                }).start();
+            } catch (Exception e) {
+                log.info("保存二维码记录:[{}]", e.getCause());
+            }
+        }
+
         return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
     }
 }
