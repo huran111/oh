@@ -57,7 +57,7 @@ public class BindAxn extends SendTemplateMsg {
 
     @RequestMapping("/getphonex")
     public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
-            qrParam, @RequestParam(value = "fromId", required = false) String fromId) throws Exception {
+            qrParam, @RequestParam(value = "formId", required = false) String formId) throws Exception {
         log.info("打电话:[{}],[{}]", id, qrParam);
         DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
                 .getAccessKeyId(), aliYunProperties.getSecret());
@@ -80,7 +80,7 @@ public class BindAxn extends SendTemplateMsg {
                 try {
                     new Thread(() -> {
                         super.sendTemplateMsg(finalOpenId, finalPlate, "暂无", WxaAccessTokenApi.getAccessTokenStr(),
-                                fromId);
+                                formId);
                     }).start();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -101,7 +101,7 @@ public class BindAxn extends SendTemplateMsg {
                 try {
                     new Thread(() -> {
                         super.sendTemplateMsg(finalOpenId, finalPlate, "暂无", WxaAccessTokenApi.getAccessTokenStr(),
-                                fromId);
+                                formId);
                     }).start();
                 } catch (Exception e) {
                     e.printStackTrace();

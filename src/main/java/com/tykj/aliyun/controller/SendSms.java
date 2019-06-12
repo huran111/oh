@@ -63,7 +63,7 @@ public class SendSms extends SendTemplateMsg {
     public ApiResponse getPhone(@RequestParam(value = "encryptedData") String encryptedData, @RequestParam(value =
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
             qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng, @RequestParam
-            (value = "fromId", required = false) String fromId) throws Exception {
+            (value = "formId", required = false) String formId) throws Exception {
         log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]", openId, lat, lng);
         try {
             String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
@@ -128,7 +128,7 @@ public class SendSms extends SendTemplateMsg {
             String finalPlate = plate;
             try {
                 new Thread(() -> {
-                    super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(), fromId);
+                    super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(), formId);
                 }).start();
             } catch (Exception e) {
                 log.info("[{}]", e.getCause());
