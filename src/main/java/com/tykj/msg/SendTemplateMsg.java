@@ -39,7 +39,8 @@ public abstract class SendTemplateMsg {
                         .add("keyword4", message, "#333")
                         .add("keyword5", remark);
                 ApiResult apiResult= wxaTemplateApi.send(wxaTemplate);
-                System.out.println(apiResult.isSucceed());
+                log.info("是否成功:[{}],数据:[{}]",apiResult.isSucceed(),apiResult.getJson());
+
             } else {
                 WxaTemplateApi wxaTemplateApi=new WxaTemplateApi();
                 WxaTemplate wxaTemplate=new WxaTemplate();
@@ -52,10 +53,10 @@ public abstract class SendTemplateMsg {
                         .add("keyword4", message, "#333")
                         .add("keyword5", remark);
                 ApiResult apiResult= wxaTemplateApi.send(wxaTemplate);
-                System.out.println(apiResult.isSucceed());
+                log.info("是否成功:[{}],数据:[{}]",apiResult.isSucceed(),apiResult.getJson());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("异常：[{}]",e.getCause());
         }
 
 
