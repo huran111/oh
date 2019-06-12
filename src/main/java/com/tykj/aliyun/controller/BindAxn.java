@@ -107,29 +107,29 @@ public class BindAxn extends SendTemplateMsg {
                     e.printStackTrace();
                 }
             }
-            //存储虚拟机号码
-            String phoneInfo = stringRedisTemplate.opsForValue().get(id);
-            log.info("redis-存储虚拟机号码:[{}]", phoneInfo);
-            if (StringUtils.isNotEmpty(phoneInfo)) {
-                PhoneRootBean phoneRootBean = JSONObject.parseObject(phoneInfo, PhoneRootBean.class);
-                String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
-                return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
-            }
-            //request.setProtocol(ProtocolType.HTTPS);
-            request.setMethod(MethodType.POST);
-            request.setDomain(aliYunProperties.getPlDomain());
-            request.setVersion(aliYunProperties.getVersion());
-            request.setAction(aliYunProperties.getBindAxn());
-            request.putQueryParameter("PoolKey", aliYunProperties.getPoolKey());
-            request.putQueryParameter("Expiration", DateUtils.addSeconds());
-            CommonResponse response = client.getCommonResponse(request);
-            log.info("============>绑定号码状态" + response.getData());
-            PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
-            stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
+
+        }
+        //存储虚拟机号码
+        String phoneInfo = stringRedisTemplate.opsForValue().get(id);
+        log.info("redis-存储虚拟机号码:[{}]", phoneInfo);
+        if (StringUtils.isNotEmpty(phoneInfo)) {
+            PhoneRootBean phoneRootBean = JSONObject.parseObject(phoneInfo, PhoneRootBean.class);
             String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
             return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
         }
-        return null;
+        //request.setProtocol(ProtocolType.HTTPS);
+        request.setMethod(MethodType.POST);
+        request.setDomain(aliYunProperties.getPlDomain());
+        request.setVersion(aliYunProperties.getVersion());
+        request.setAction(aliYunProperties.getBindAxn());
+        request.putQueryParameter("PoolKey", aliYunProperties.getPoolKey());
+        request.putQueryParameter("Expiration", DateUtils.addSeconds());
+        CommonResponse response = client.getCommonResponse(request);
+        log.info("============>绑定号码状态" + response.getData());
+        PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
+        stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
+        String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
+        return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
     }
 }
 
