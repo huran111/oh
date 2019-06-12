@@ -28,7 +28,7 @@ import java.util.List;
  * @since 2019-06-12
  */
 @RestController
-@RequestMapping("rest/wx/qrcoderecord")
+@RequestMapping("/rest/wx/qrcoderecord")
 public class QrcodeRecordController extends BaseController<IQrcodeRecordService, QrcodeRecord> {
     @Autowired
     ITmpqrcodeRecordService tmpqrcodeRecordService;
