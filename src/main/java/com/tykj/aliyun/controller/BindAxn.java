@@ -5,8 +5,6 @@ import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
-import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.exceptions.ServerException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -59,29 +57,34 @@ public class BindAxn extends SendTemplateMsg {
 
     @RequestMapping("/getphonex")
     public ApiResponse getPhone(@RequestParam(value = "id") String id, @RequestParam(value = "qrParam") String
-            qrParam,@RequestParam(value = "fromId",required = false)String fromId) throws Exception {
-        log.info("打电话:[{}],[{}]",id,qrParam);
+            qrParam, @RequestParam(value = "fromId", required = false) String fromId) throws Exception {
+        log.info("打电话:[{}],[{}]", id, qrParam);
         DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
                 .getAccessKeyId(), aliYunProperties.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);
         CommonRequest request = new CommonRequest();
-        String openId="";
-        String plate="";
+        String openId = "";
+        String plate = "";
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
             TmpQrcode tmpQrcode = tmpQrcodeService.getOne(new QueryWrapper<TmpQrcode>().lambda().eq(TmpQrcode::getId,
                     id).eq(TmpQrcode::getQrParam, qrParam));
             if (SysConstant.SWITCH_0.equals(tmpQrcode.getIsSwitch())) {
                 return new ApiResponse(ApiCode.CLOSE_SWITCH);
             }
-            if(null!=tmpQrcode){
-                openId=tmpQrcode.getOpenId();
-                plate=tmpQrcode.getPlateNum();
+            if (null != tmpQrcode) {
+                openId = tmpQrcode.getOpenId();
+                plate = tmpQrcode.getPlateNum();
                 request.putQueryParameter("PhoneNoA", tmpQrcode.getPhoneNum());
                 String finalOpenId = openId;
                 String finalPlate = plate;
-            /*   new Thread(()->{
-                    super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-                }).start();*/
+                try {
+                    new Thread(() -> {
+                        super.sendTemplateMsg(finalOpenId, finalPlate, null, WxaAccessTokenApi.getAccessTokenStr(),
+                                fromId);
+                    }).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getId, id).eq
@@ -89,40 +92,44 @@ public class BindAxn extends SendTemplateMsg {
             if (SysConstant.SWITCH_0.equals(qrcode.getIsSwitch())) {
                 return new ApiResponse(ApiCode.CLOSE_SWITCH);
             }
-            if(null!=qrcode){
+            if (null != qrcode) {
                 request.putQueryParameter("PhoneNoA", qrcode.getPhoneNum());
-                openId=qrcode.getOpenId();
-                plate=qrcode.getPlateNum();
+                openId = qrcode.getOpenId();
+                plate = qrcode.getPlateNum();
                 String finalOpenId = openId;
                 String finalPlate = plate;
-           /*    new Thread(()->{
-                    super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-                }).start();*/
+                try {
+                    new Thread(() -> {
+                        super.sendTemplateMsg(finalOpenId, finalPlate, null, WxaAccessTokenApi.getAccessTokenStr(),
+                                fromId);
+                    }).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-
-        }
-        //存储虚拟机号码
-        String phoneInfo = stringRedisTemplate.opsForValue().get(id);
-        log.info("redis-存储虚拟机号码:[{}]",phoneInfo);
-        if (StringUtils.isNotEmpty(phoneInfo)) {
-            PhoneRootBean phoneRootBean = JSONObject.parseObject(phoneInfo, PhoneRootBean.class);
+            //存储虚拟机号码
+            String phoneInfo = stringRedisTemplate.opsForValue().get(id);
+            log.info("redis-存储虚拟机号码:[{}]", phoneInfo);
+            if (StringUtils.isNotEmpty(phoneInfo)) {
+                PhoneRootBean phoneRootBean = JSONObject.parseObject(phoneInfo, PhoneRootBean.class);
+                String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
+                return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
+            }
+            //request.setProtocol(ProtocolType.HTTPS);
+            request.setMethod(MethodType.POST);
+            request.setDomain(aliYunProperties.getPlDomain());
+            request.setVersion(aliYunProperties.getVersion());
+            request.setAction(aliYunProperties.getBindAxn());
+            request.putQueryParameter("PoolKey", aliYunProperties.getPoolKey());
+            request.putQueryParameter("Expiration", DateUtils.addSeconds());
+            CommonResponse response = client.getCommonResponse(request);
+            log.info("============>绑定号码状态" + response.getData());
+            PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
+            stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
             String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
             return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
         }
-
-
-        //request.setProtocol(ProtocolType.HTTPS);
-        request.setMethod(MethodType.POST);
-        request.setDomain(aliYunProperties.getPlDomain());
-        request.setVersion(aliYunProperties.getVersion());
-        request.setAction(aliYunProperties.getBindAxn());
-        request.putQueryParameter("PoolKey", aliYunProperties.getPoolKey());
-        request.putQueryParameter("Expiration", DateUtils.addSeconds());
-        CommonResponse response = client.getCommonResponse(request);
-        log.info("============>绑定号码状态" + response.getData());
-        PhoneRootBean phoneRootBean = JSONObject.parseObject(response.getData(), PhoneRootBean.class);
-        stringRedisTemplate.opsForValue().set(id, JSONObject.toJSONString(phoneRootBean), 10, TimeUnit.MINUTES);
-        String phone = phoneRootBean.getSecretBindDTO().getSecretNo();
-        return new ApiResponse(ApiCode.OPEN_SWITCH, phone);
+        return null;
     }
 }
+

@@ -62,9 +62,8 @@ public class SendSms extends SendTemplateMsg {
     @RequestMapping("/send")
     public ApiResponse getPhone(@RequestParam(value = "encryptedData") String encryptedData, @RequestParam(value =
             "iv") String iv, @RequestParam(value = "openId") String openId, @RequestParam(value = "qrParam") String
-                                        qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng
-            , @RequestParam(value = "fromId",required = false) String fromId) throws
-            Exception {
+            qrParam, @RequestParam(value = "lat") String lat, @RequestParam(value = "lng") String lng, @RequestParam
+            (value = "fromId", required = false) String fromId) throws Exception {
         log.info("发送短信开始: openId:[{}],lat:[{}],lng:[{}]", openId, lat, lng);
         try {
             String sessionKey = stringRedisTemplate.opsForValue().get("sessionKey:" + openId);
@@ -127,9 +126,14 @@ public class SendSms extends SendTemplateMsg {
             request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address +
                     "\"," + "" + "" + "\"phone\":\"" + saoPhone + "\"}");
             String finalPlate = plate;
-         /*   new Thread(() -> {
-                super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-            }).start();*/
+            try {
+                new Thread(() -> {
+                    super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(), fromId);
+                }).start();
+            } catch (Exception e) {
+                log.info("[{}]", e.getCause());
+            }
+
             try {
                 CommonResponse response = client.getCommonResponse(request);
                 log.info("发送短信通知状态:[{}],[{}]", response.getHttpStatus(), response.getData());
