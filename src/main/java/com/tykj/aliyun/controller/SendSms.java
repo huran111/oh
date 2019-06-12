@@ -172,6 +172,11 @@ public class SendSms extends SendTemplateMsg {
                             QrcodeRecord record = new QrcodeRecord();
                             record.setId(UUIDUtils.getUUID())
                                     .setCreateTime(new Date()).setPhone(finalNoticePhone1).setQrParam(qrParam).setFlag("1");
+                            if(response.getHttpStatus()==200){
+                                record.setStatus("1");
+                            }else {
+                                record.setStatus("2");
+                            }
                             qrcodeRecordService.save(record);
                         }).start();
                     } catch (Exception e) {
