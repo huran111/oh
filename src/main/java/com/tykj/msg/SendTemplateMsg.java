@@ -21,8 +21,8 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public abstract class SendTemplateMsg {
     public void sendTemplateMsg(String openId, String plate, String address, String token,String fromId) {
-        log.info("发送模板消息:openId:[{}] plate:[{}] address:[{}],token:[{}]"
-                , openId, plate, address, token);
+        log.info("发送模板消息:openId:[{}] plate:[{}] address:[{}],token:[{}],fromId:[{}]"
+                , openId, plate, address, token,fromId);
         try {
             // 模板消息，发送测试：pass
             DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
