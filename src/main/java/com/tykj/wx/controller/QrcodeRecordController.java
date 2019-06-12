@@ -9,6 +9,8 @@ import com.tykj.wx.entity.TmpqrcodeRecord;
 import com.tykj.wx.service.IQrcodeRecordService;
 
 import com.tykj.wx.service.ITmpqrcodeRecordService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.*;
@@ -27,6 +29,7 @@ import java.util.List;
  * @author huran
  * @since 2019-06-12
  */
+@Api(tags = "挪车记录")
 @RestController
 @RequestMapping("/rest/wx/qrcoderecord")
 public class QrcodeRecordController extends BaseController<IQrcodeRecordService, QrcodeRecord> {
@@ -34,7 +37,7 @@ public class QrcodeRecordController extends BaseController<IQrcodeRecordService,
     ITmpqrcodeRecordService tmpqrcodeRecordService;
     @Autowired
     IQrcodeRecordService qrcodeRecordService;
-
+    @ApiOperation(value = "查看挪车记录", notes = "查看挪车记录")
     @GetMapping(value = "viewRecord")
     public ApiResponse viewRecord(@RequestParam(value = "qrParam") String qrParam) {
         if (qrParam.contains(SysConstant.TMP_QRPARAM)) {
