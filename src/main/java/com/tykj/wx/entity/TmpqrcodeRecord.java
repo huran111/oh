@@ -35,7 +35,13 @@ public class TmpqrcodeRecord extends BaseEntity {
     private String phone;
     @TableField("create_time")
     private Date createTime;
+    /**
+     *  1短信 2电话
+     */
     private String flag;
-
+    /**
+     * 1 成功 0失败
+     */
+    private String status;
 
 }

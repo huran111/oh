@@ -35,6 +35,13 @@ private String qrParam;
 private String phone;
 
 private Date createTime;
-private String flag;
+    /**
+     *  1短信 2电话
+     */
+    private String flag;
+    /**
+     * 1 成功 0失败
+     */
+    private String status;
 
 }
