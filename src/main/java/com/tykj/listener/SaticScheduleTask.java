@@ -18,7 +18,6 @@ import java.io.File;
 import java.time.LocalDateTime;
 
 
-
 /**
  * @author 胡冉
  * @ClassName SaticScheduleTask
@@ -33,10 +32,11 @@ public class SaticScheduleTask {
     private IInvalidQrparamService iInvalidQrparamService;
     @Autowired
     private ITmpqrcodeRecordService tmpqrcodeRecordService;
+
     /**
      * 删除临时体验码
      */
-    @Scheduled(fixedRate =10000)
+    @Scheduled(fixedRate = 10000)
     private void configureTasks() {
         log.info("删除临时挪车体验码:[{}]", LocalDateTime.now());
         SysDeleteData.queue.keySet().forEach(key -> {
@@ -49,11 +49,13 @@ public class SaticScheduleTask {
                     InvalidQrparam invalidQrparam = new InvalidQrparam();
                     invalidQrparam.setId(qrparam);
                     iInvalidQrparamService.save(invalidQrparam);
-                    SysDeleteData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
+                    boolean f = SysDeleteData.queue.get(key).remove(new QueryWrapper<TmpQrcode>().lambda().eq
                             (TmpQrcode::getQrParam, qrparam));
+                    if (f) {
+                        SysDeleteData.tmpRecord.add(qrparam);
+                        SysDeleteData.queue.remove(key);
+                    }
                 }
-                SysDeleteData.tmpRecord.add(qrparam);
-                SysDeleteData.queue.remove(key);
             }
         });
     }
@@ -62,16 +64,18 @@ public class SaticScheduleTask {
      * 删除临时挪车记录
      */
     @Scheduled(cron = "0 0 23 * * ?")
-    private void deleteTmpQrParam(){
+    private void deleteTmpQrParam() {
         log.info("删除临时挪车记录:[{}]", LocalDateTime.now());
         try {
-            SysDeleteData.tmpRecord.forEach(x->{
-                tmpqrcodeRecordService.remove(new QueryWrapper<TmpqrcodeRecord>()
-                        .lambda().eq(TmpqrcodeRecord::getQrParam,x));
-                SysDeleteData.tmpRecord.remove(x);
+            SysDeleteData.tmpRecord.forEach(x -> {
+                boolean f = tmpqrcodeRecordService.remove(new QueryWrapper<TmpqrcodeRecord>()
+                        .lambda().eq(TmpqrcodeRecord::getQrParam, x));
+                if (f) {
+                    SysDeleteData.tmpRecord.remove(x);
+                }
             });
-        }catch (Exception e){
-            log.info("删除临时挪车记录:[{}]",e.getCause());
+        } catch (Exception e) {
+            log.info("删除临时挪车记录:[{}]", e.getCause());
         }
     }
 }
