@@ -79,9 +79,9 @@ public class BindAxn extends SendTemplateMsg {
                 request.putQueryParameter("PhoneNoA", tmpQrcode.getPhoneNum());
                 String finalOpenId = openId;
                 String finalPlate = plate;
-               new Thread(()->{
+            /*   new Thread(()->{
                     super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-                }).start();
+                }).start();*/
             }
         } else {
             Qrcode qrcode = qrcodeService.getOne(new QueryWrapper<Qrcode>().lambda().eq(Qrcode::getId, id).eq
@@ -95,9 +95,9 @@ public class BindAxn extends SendTemplateMsg {
                 plate=qrcode.getPlateNum();
                 String finalOpenId = openId;
                 String finalPlate = plate;
-               new Thread(()->{
+           /*    new Thread(()->{
                     super.sendTemplateMsg(finalOpenId, finalPlate,null, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-                }).start();
+                }).start();*/
             }
 
         }

@@ -127,9 +127,9 @@ public class SendSms extends SendTemplateMsg {
             request.putQueryParameter("TemplateParam", "{\"license\":\"" + license + "\",\"address\":\"" + address +
                     "\"," + "" + "" + "\"phone\":\"" + saoPhone + "\"}");
             String finalPlate = plate;
-            new Thread(() -> {
+         /*   new Thread(() -> {
                 super.sendTemplateMsg(openId, finalPlate, address, WxaAccessTokenApi.getAccessTokenStr(),fromId);
-            }).start();
+            }).start();*/
             try {
                 CommonResponse response = client.getCommonResponse(request);
                 log.info("发送短信通知状态:[{}],[{}]", response.getHttpStatus(), response.getData());
