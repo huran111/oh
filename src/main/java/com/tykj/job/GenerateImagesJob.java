@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author 胡冉
@@ -44,11 +44,17 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
     StringRedisTemplate stringRedisTemplate;
     @Autowired
     WxProperties wxProperties;
+    private static int imageSize = 2000;
+
     final static String redisKey = "sharding:context:images";
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    CompletionService<Long> completionService = new ExecutorCompletionService<Long>(
+            executor);
 
     @Override
     public void process(JobExecutionMultipleShardingContext shardingContext) {
+        AtomicLong atomicLong = new AtomicLong(0);
         WxaConfig wxaConfig = new WxaConfig();
         wxaConfig.setAppId(wxProperties.getAppId());
         wxaConfig.setAppSecret(wxProperties.getAppSecret());
@@ -60,19 +66,31 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
             try {
                 FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
+
                 log.info("生成二维码到指定目录");
-                for (int i = 0; i < 2000; i++) {
-                    //生成二维码到指定目录
-                    String qrParamId = UUIDUtils.getUUID();
-                    InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-                    IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + dey + "/" + qrParamId + ".png"));
+                for (int i = 0; i < imageSize; i++) {
+                    try {
+                        //生成二维码到指定目录
+                        completionService.submit(new ImagesTask(wxaQrcodeApi1, dey, atomicLong));
+                    } catch (Exception e) {
+                        log.info("生成二维码到指定目录:[{}]", e.getCause());
+                    }
                 }
+                for (int i = 0; i < imageSize; i++) {
+                    try {
+                        completionService.take().get();
+                    } catch (Exception e) {
+                        log.info("生成二维码到指定目录:[{}]", e.getCause());
+                    }
+                }
+                log.info("任务完成............[{}]", atomicLong.get());
+                executor.shutdown();
                 stringRedisTemplate.opsForValue().set(redisKey, "1", 1L, TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.info(e.getMessage());
                 e.printStackTrace();
             }
-        }else {
+        } else {
             log.info("请稍后再试....");
         }
 
