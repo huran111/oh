@@ -83,7 +83,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                         log.info("生成二维码到指定目录:[{}]", e.getCause());
                     }
                 }
-                log.info("任务完成............[{}]", atomicLong.get());
+                log.info("任务完成,生成二二维码数量：[{}]", atomicLong.get());
                 executor.shutdown();
                 stringRedisTemplate.opsForValue().set(redisKey, "1", 1L, TimeUnit.MINUTES);
             } catch (IOException e) {
