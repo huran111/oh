@@ -17,6 +17,7 @@ public class ImagesTask implements Callable<Long> {
     public ImagesTask(WxaQrcodeApi wxaQrcodeApi1, String day, AtomicLong atomicLong) {
         this.wxaQrcodeApi = wxaQrcodeApi1;
         this.day = day;
+        this.atomicLong=atomicLong;
     }
 
     @Override
