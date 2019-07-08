@@ -60,6 +60,8 @@ aliyun:
   version: 2017-05-25
   signName: 欧海网络科技
   templateCode: SMS_165410073
+   #预约洗车通知
+  templateReserveCode: SMS_169901098
   poolKey: FC100000069120648
   bindAxn: BindAxn
   sendSms: SendSms

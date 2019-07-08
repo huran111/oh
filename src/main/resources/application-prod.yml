@@ -24,7 +24,7 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
   redis:
-    host: localhost
+    host: 62.234.151.151
     port: 6379
     database: 0
     password: 123456&7
@@ -51,7 +51,7 @@ logging:
 server:
   port: 8088
 swagger:
-  switch: false
+  switch: true
 aliyun:
   regionId: default
   accessKeyId: LTAIzeiN5MvkPUs5
@@ -61,6 +61,12 @@ aliyun:
   version: 2017-05-25
   signName: 欧海网络科技
   templateCode: SMS_165410073
+  #预约洗车通知
+  templateReserveCode: SMS_169901098
   poolKey: FC100000069120648
   bindAxn: BindAxn
   sendSms: SendSms
+job:
+  zookeeper:
+    address:
+      localhost:2181
