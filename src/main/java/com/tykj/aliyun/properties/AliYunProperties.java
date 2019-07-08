@@ -24,4 +24,5 @@ public class AliYunProperties{
 	private String bindAxn;
 	private String sendSms;
 	private String addressKey;
+	private String templateReserveCode;
 }

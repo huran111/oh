@@ -11,6 +11,14 @@ public class ApiResponse<T> {
     public T data;
     public int status;
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public ApiResponse(ApiCode ApiCode) {
         this.code = ApiCode.getCode();
         this.msg = ApiCode.getDesc();
