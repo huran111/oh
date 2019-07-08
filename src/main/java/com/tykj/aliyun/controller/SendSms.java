@@ -196,5 +196,43 @@ public class SendSms extends SendTemplateMsg {
         return ApiResponse.success();
     }
 
+    /**
+     * @param userPhone   用户手机号
+     * @param storePhone  商家手机号
+     * @param reserveTime 预约时间
+     * @param storeName 商家店名
+     * @return
+     */
+    public ApiResponse sendReserveMsg(String userPhone, String storePhone, String reserveTime,String storeName) {
+        DefaultProfile profile = DefaultProfile.getProfile(aliYunProperties.getRegionId(), aliYunProperties
+                .getAccessKeyId(), aliYunProperties.getSecret());
+        IAcsClient client = new DefaultAcsClient(profile);
+        CommonRequest request = new CommonRequest();
+        //request.setProtocol(ProtocolType.HTTPS);
+        request.setMethod(MethodType.POST);
+        request.setDomain(aliYunProperties.getSmsDomain());
+        request.setVersion(aliYunProperties.getVersion());
+        request.setAction(aliYunProperties.getSendSms());
+        request.putQueryParameter("SignName", aliYunProperties.getSignName());
+        request.putQueryParameter("PhoneNumbers", storePhone);
+
+        //短信模板
+        request.putQueryParameter("TemplateCode", aliYunProperties.getTemplateReserveCode());
+        //模板中变量
+        request.putQueryParameter("TemplateParam", "{\"storeName\":\"" + storeName + "\",\"userPhone\":\"" + userPhone +
+                "\"," + "" + "" + "\"reserveTime\":\"" + reserveTime + "\"}");
+        CommonResponse response = null;
+        try {
+            response = client.getCommonResponse(request);
+        } catch (ClientException e) {
+            e.printStackTrace();
+            log.error("连接阿里云服务器异常{[]}",e.getErrMsg());
+        }
+        if (response.getHttpStatus() == 200) {
+            return new ApiResponse(ApiCode.SEND_SUCCESS);
+        } else {
+            return new ApiResponse(ApiCode.OPERATOR_FAIL);
+        }
+    }
 
 }
