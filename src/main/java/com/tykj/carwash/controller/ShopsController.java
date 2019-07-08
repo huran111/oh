@@ -57,7 +57,6 @@ public class ShopsController extends BaseController<ShopsService, Shops> {
 			data.setSales(count);
 		});
 		Collections.sort(shopsList);
-		redisTemplate.opsForList().leftPush("shopsList", shopsList);
 
 		return new ApiResponse(ApiCode.OPERATOR_SUCCESS, shopsList);
 
