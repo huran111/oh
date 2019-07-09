@@ -59,10 +59,11 @@ aliyun:
   plDomain: dyplsapi.aliyuncs.com
   version: 2017-05-25
   signName: 欧海网络科技
-  #挪车通知
   templateCode: SMS_165410073
-  #预约洗车通知
+   #预约洗车通知
   templateReserveCode: SMS_169901098
+  #取消预约洗车通知
+  reserveCode: SMS_169899721
   poolKey: FC100000069120648
   bindAxn: BindAxn
   sendSms: SendSms

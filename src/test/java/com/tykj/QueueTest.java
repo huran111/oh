@@ -1,14 +1,17 @@
+/*
 package com.tykj;
 
 import com.tykj.common.DelayQueueDeleteImages;
 
 import java.util.concurrent.DelayQueue;
 
+*/
 /**
  * @Description TODO
  * @auther huran
  * @date
- **/
+ **//*
+
 public class QueueTest {
     // 延时队列 ,消费者从其中获取消息进行消费
     private  static DelayQueue<DelayQueueDeleteImages> queue;
@@ -24,3 +27,4 @@ public class QueueTest {
 
     }
 }
+*/

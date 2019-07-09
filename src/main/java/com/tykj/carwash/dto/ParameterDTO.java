@@ -9,7 +9,7 @@ import lombok.Data;
  * @create: 2019-07-03 20:04
  **/
 @Data
-public class ReserveDTO {
+public class ParameterDTO {
 	private String encryptedData;
 	private String reserveTime;
 	private String storeId;

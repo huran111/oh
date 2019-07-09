@@ -45,7 +45,9 @@ public class Shops extends BaseEntity implements Comparable<Shops> {
 	 */
 	@TableField("store_name")
 	private String storeName;
+
 	private String image;
+
 	@TableField("create_time")
 	private Date createTime;
 	/**
@@ -58,6 +60,12 @@ public class Shops extends BaseEntity implements Comparable<Shops> {
 	 */
 	@TableField(exist = false)
 	private Integer sales;
+
+	/**
+	 * 参考价格
+	 */
+	@TableField("ref_price")
+	private String refPrice;
 
 	@Override
 	public int compareTo(Shops o) {

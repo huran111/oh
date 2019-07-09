@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 @Configuration
-@EnableScheduling
+//@EnableScheduling
 public class SaticScheduleTask {
     @Autowired
     private IInvalidQrparamService iInvalidQrparamService;

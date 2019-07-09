@@ -22,7 +22,7 @@ public enum ApiCode {
     BINDING_SUCCESS(200,"绑定成功"),
     CLOSE_SWITCH(200,0,"已关闭"),
     OPEN_SWITCH(200,1,"开启"),
-    SEND_SUCCESS(200,"发生成功");
+    SEND_SUCCESS(200,"发送成功");
 
     private int code;
     private String desc;

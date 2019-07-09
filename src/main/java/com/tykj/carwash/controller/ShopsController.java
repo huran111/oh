@@ -36,9 +36,15 @@ public class ShopsController extends BaseController<ShopsService, Shops> {
 	private ShopsService shopsService;
 	@Resource
 	private ReserveService reserveService;
-	@Autowired
-	private RedisTemplate redisTemplate;
 
+	/**
+	 * 车行信息
+	 *
+	 * @param lng       经度
+	 * @param lat       纬度
+	 * @param storeName 店铺名称(搜索使用)
+	 * @return
+	 */
 	@GetMapping("/list")
 	public ApiResponse findAll(@RequestParam(value = "longitude") String lng,
 							   @RequestParam(value = "latitude") String lat,
@@ -47,7 +53,8 @@ public class ShopsController extends BaseController<ShopsService, Shops> {
 		if (StringUtils.isNotBlank(storeName)) {
 			condition.lambda().like(Shops::getStoreName, storeName);
 		}
-		Page<Shops> pageCondition = new Page<>(1, 6);
+		condition.lambda().eq(Shops::getFlag, 0);
+		Page<Shops> pageCondition = new Page<>(1, 7);
 		IPage<Shops> page = shopsService.page(pageCondition, condition);
 		List<Shops> shopsList = page.getRecords();
 		shopsList.forEach(data -> {

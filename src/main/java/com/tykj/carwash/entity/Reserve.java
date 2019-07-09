@@ -56,4 +56,9 @@ public class Reserve extends BaseEntity {
 	 */
 	@TableField("user_phone")
 	private String userPhone;
+	/**
+	 * 预约状态0已预约1已取消
+	 */
+	@TableField("is_reserve")
+	private Integer isReserve;
 }
