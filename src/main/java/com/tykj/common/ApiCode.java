@@ -22,7 +22,10 @@ public enum ApiCode {
     BINDING_SUCCESS(200,"绑定成功"),
     CLOSE_SWITCH(200,0,"已关闭"),
     OPEN_SWITCH(200,1,"开启"),
-    SEND_SUCCESS(200,"发送成功");
+    SEND_SUCCESS(200,"发送成功"),
+    RECEVRER_SUCCESS(200, 0,"预约成功"),
+    RECEVRER_FAIL(200, 1, "当天预约次数不得超过三次"),
+    RECEVEER_RECORD(200, "暂无预约记录");
 
     private int code;
     private String desc;

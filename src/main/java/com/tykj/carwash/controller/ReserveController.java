@@ -54,7 +54,7 @@ public class ReserveController {
 		condition.lambda().apply("date(create_time) = curdate()");
 		int count = reserveService.count(condition);
 		if (count > 3) {
-			return new ApiResponse(ApiCode.OPERATOR_FAIL, "当天预约次数不得超过三次");
+			return new ApiResponse(ApiCode.RECEVRER_FAIL);
 		}
 		Shops shop = shopsService.getById(parameterDTO.getStoreId());
 		if (null == shop) {
@@ -94,7 +94,7 @@ public class ReserveController {
 		condition.lambda().orderByDesc(true, Reserve::getCreateTime);
 		List<Reserve> reserves = reserveService.list(condition);
 		if (CollectionUtils.isEmpty(reserves)) {
-			return new ApiResponse(ApiCode.OPERATOR_FAIL, reserves);
+			return new ApiResponse(ApiCode.OPERATOR_SUCCESS, reserves);
 		}
 		Shops shop = shopsService.getById(reserves.get(0).getStoreId());
 		List<ReserveVO> reserveArrayList = Lists.newArrayList();
@@ -106,7 +106,7 @@ public class ReserveController {
 					setStoreId(shop.getId()).setReserveTime(reserve.getReserveTime()).setStoreName(shop.getStoreName()).setId(reserve.getId());
 			reserveArrayList.add(reserveVO);
 		}
-		return new ApiResponse(ApiCode.SEND_SUCCESS, reserveArrayList);
+		return new ApiResponse(ApiCode.OPERATOR_SUCCESS, reserveArrayList);
 	}
 
 	/**
@@ -119,15 +119,15 @@ public class ReserveController {
 	public ApiResponse cancelReserve(@RequestParam("id") String id) {
 		Reserve reserve = reserveService.getById(id);
 		if (null == reserve) {
-			return new ApiResponse(ApiCode.OPERATOR_FAIL, null);
+			return new ApiResponse(ApiCode.RECEVEER_RECORD);
 		}
 		reserve.setIsReserve(1);
 		reserveService.updateById(reserve);
 		try {
 			Shops shop = shopsService.getById(reserve.getStoreId());
-			ApiResponse apiResponse = this.sendSms.sendReserveMsg(reserve.getUserPhone(), shop.getPhone(), reserve.getReserveTime(), shop.getStoreName());
+			this.sendSms.sendReserveMsg(reserve.getUserPhone(), shop.getPhone(), reserve.getReserveTime(), shop.getStoreName(), "cancel");
 		} catch (Exception e) {
-			return new ApiResponse(ApiCode.OPERATOR_FAIL, "发送失败");
+			return new ApiResponse(ApiCode.RECEVRER_SUCCESS);
 		}
 		return new ApiResponse(ApiCode.OPERATOR_SUCCESS);
 	}
