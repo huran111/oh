@@ -1,20 +1,10 @@
-package com.tykj.job;/**
- * <pre>
- * TODO：
- * </pre>
- *
- * @author BUCHU
- * @date 2019/6/10
- */
-
+package com.tykj.job;
 import com.dangdang.ddframe.job.api.JobExecutionMultipleShardingContext;
 import com.dangdang.ddframe.job.plugin.job.type.simple.AbstractSimpleElasticJob;
 import com.jfinal.aop.Duang;
-import com.jfinal.weixin.sdk.utils.IOUtils;
 import com.jfinal.wxaapp.WxaConfig;
 import com.jfinal.wxaapp.WxaConfigKit;
 import com.jfinal.wxaapp.api.WxaQrcodeApi;
-import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.properties.WxProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.*;

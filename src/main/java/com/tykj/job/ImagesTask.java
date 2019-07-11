@@ -3,6 +3,7 @@ package com.tykj.job;
 import com.jfinal.weixin.sdk.utils.IOUtils;
 import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.utils.UUIDUtils;
+import net.coobird.thumbnailator.Thumbnails;
 
 import java.io.File;
 import java.io.InputStream;
@@ -17,14 +18,17 @@ public class ImagesTask implements Callable<Long> {
     public ImagesTask(WxaQrcodeApi wxaQrcodeApi1, String day, AtomicLong atomicLong) {
         this.wxaQrcodeApi = wxaQrcodeApi1;
         this.day = day;
-        this.atomicLong=atomicLong;
+        this.atomicLong = atomicLong;
     }
 
     @Override
     public Long call() throws Exception {
         String qrParamId = UUIDUtils.getUUID();
         InputStream inputStream = wxaQrcodeApi.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + day + "/" + qrParamId + ".png"));
+        //压缩图片
+        Thumbnails.of(inputStream).scale(0.8).outputQuality(1f).toFile(new File("/home/images/qrParam/" + day + "/" +
+                qrParamId + ".png"));
+        //  IOUtils.toFile(inputStream, new File("/home/images/qrParam/" + day + "/" + qrParamId + ".png"));
         return atomicLong.incrementAndGet();
     }
 }
