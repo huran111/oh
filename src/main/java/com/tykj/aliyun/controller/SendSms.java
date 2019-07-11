@@ -229,7 +229,7 @@ public class SendSms extends SendTemplateMsg {
             e.printStackTrace();
             log.error("连接阿里云服务器异常{[]}",e.getErrMsg());
         }
-        if (response.getHttpStatus() == 200) {
+        if (null != response && response.getHttpStatus() == 200) {
             return new ApiResponse(ApiCode.SEND_SUCCESS);
         } else {
             return new ApiResponse(ApiCode.OPERATOR_FAIL);

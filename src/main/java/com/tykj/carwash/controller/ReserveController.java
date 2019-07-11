@@ -5,17 +5,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tykj.aliyun.controller.SendSms;
 import com.tykj.carwash.dto.ParameterDTO;
-import com.tykj.carwash.vo.ReserveVO;
 import com.tykj.carwash.entity.Reserve;
 import com.tykj.carwash.entity.Shops;
 import com.tykj.carwash.service.ReserveService;
 import com.tykj.carwash.service.ShopsService;
+import com.tykj.carwash.vo.ReserveVO;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.utils.AESUtils;
-import com.tykj.utils.LngLatUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +36,7 @@ public class ReserveController {
 	private ShopsService shopsService;
 	@Resource
 	private StringRedisTemplate stringRedisTemplate;
-	@Autowired
+	@Resource
 	private SendSms sendSms;
 
 	/**
@@ -87,8 +85,8 @@ public class ReserveController {
 	 */
 	@GetMapping("/list")
 	public ApiResponse list(
-			@RequestParam("openId") String openId, @RequestParam(value = "longitude") String lng,
-			@RequestParam(value = "latitude") String lat) {
+			@RequestParam("openId") String openId, @RequestParam(value = "longitude", required = false) String lng,
+			@RequestParam(value = "latitude", required = false) String lat) {
 		QueryWrapper<Reserve> condition = new QueryWrapper<>();
 		condition.lambda().eq(Reserve::getOpenId, openId);
 		condition.lambda().eq(Reserve::getIsReserve, 0);
@@ -102,10 +100,10 @@ public class ReserveController {
 		List<ReserveVO> reserveArrayList = Lists.newArrayList();
 		for (Reserve reserve : reserves) {
 			ReserveVO reserveVO = new ReserveVO();
-			double distance = LngLatUtils.getDistance(Double.parseDouble(lng), Double.parseDouble(lat), shop.getLongitude(), shop.getLatitude());
-			reserveVO.setAddress(shop.getAddress()).setDistance(distance).setGrade(shop.getGrade()).setLatitude(shop.getLatitude()).
+			//double distance = LngLatUtils.getDistance(Double.parseDouble(lng), Double.parseDouble(lat), shop.getLongitude(), shop.getLatitude());
+			reserveVO.setAddress(shop.getAddress()).setGrade(shop.getGrade()).setLatitude(shop.getLatitude()).
 					setLongitude(shop.getLongitude()).setImage(shop.getImage()).setPhone(shop.getPhone()).setRefPrice(shop.getRefPrice()).setSales(shop.getSales()).
-					setStoreId(shop.getId()).setReserveTime(reserve.getReserveTime()).setStoreName(shop.getStoreName());
+					setStoreId(shop.getId()).setReserveTime(reserve.getReserveTime()).setStoreName(shop.getStoreName()).setId(reserve.getId());
 			reserveArrayList.add(reserveVO);
 		}
 		return new ApiResponse(ApiCode.SEND_SUCCESS, reserveArrayList);
@@ -125,7 +123,12 @@ public class ReserveController {
 		}
 		reserve.setIsReserve(1);
 		reserveService.updateById(reserve);
+		try {
+			Shops shop = shopsService.getById(reserve.getStoreId());
+			ApiResponse apiResponse = this.sendSms.sendReserveMsg(reserve.getUserPhone(), shop.getPhone(), reserve.getReserveTime(), shop.getStoreName());
+		} catch (Exception e) {
+			return new ApiResponse(ApiCode.OPERATOR_FAIL, "发送失败");
+		}
 		return new ApiResponse(ApiCode.OPERATOR_SUCCESS);
-
 	}
 }

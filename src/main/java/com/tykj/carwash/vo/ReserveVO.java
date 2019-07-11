@@ -15,6 +15,7 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 public class ReserveVO extends BaseEntity {
+	private Integer id;
 
 	private Date createTime;
 
