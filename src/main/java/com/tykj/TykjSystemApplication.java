@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @ServletComponentScan(basePackages = {"com.tykj.config"})
 @MapperScan("com.tykj.*.mapper")
-//@ImportResource(value = "classpath:spring/job.xml")
+@ImportResource(value = "classpath:spring/job.xml")
 @EnableTransactionManagement
 @SpringBootApplication
 public class TykjSystemApplication {
