@@ -17,6 +17,7 @@ import com.tykj.wx.service.IQrcodeService;
 import com.tykj.wx.service.ITmpQrcodeService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,8 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
         //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
-        IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
+        Thumbnails.of(inputStream).scale(0.8).outputQuality(1f).toFile(new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
+        //IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
         log.info("生成体验码的信息为:[{}]", tmpQrcode);
         tmpQrcodeService.save(tmpQrcode);
         poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam(),tmpQrcodeService));
@@ -151,7 +153,6 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
                 return new ApiResponse(ApiCode.BINDING, var2);
             } else {
                 log.info("=========>>>" + "未绑定");
-
                 //未绑定
                 return new ApiResponse(ApiCode.NOT_BINDING);
             }
