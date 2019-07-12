@@ -35,6 +35,6 @@ public class InitShopsProcessor implements ApplicationListener<ContextRefreshedE
 			int count = reserveService.count(new QueryWrapper<Reserve>().lambda().eq(Reserve::getStoreId, shop.getId()));
 			shop.setSales(count);
 		});
-
+		SHOPS_LIST.addAll(shopsList);
 	}
 }
