@@ -2,12 +2,11 @@ package com.tykj.wx.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jfinal.aop.Duang;
-import com.jfinal.weixin.sdk.utils.IOUtils;
 import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.common.SysConstant;
-import com.tykj.listener.AddImageTask;
+import com.tykj.listener.SysDeleteData;
 import com.tykj.utils.UUIDUtils;
 import com.tykj.wx.dto.UserInfoDTO;
 import com.tykj.wx.entity.Qrcode;
@@ -22,16 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 /**
  * <p>
  * 服务实现类
@@ -44,9 +37,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode> implements ITmpQrcodeService {
-    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
-            Runtime.getRuntime().availableProcessors() + 1, 100L, TimeUnit.MILLISECONDS, new
-            LinkedBlockingQueue<Runnable>());
     @Autowired
     ITmpQrcodeService tmpQrcodeService;
     @Autowired
@@ -75,11 +65,13 @@ public class TmpQrcodeServiceImpl extends ServiceImpl<TmpQrcodeMapper, TmpQrcode
         WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
         //生成二维码到指定目录
         InputStream inputStream = wxaQrcodeApi1.getUnLimit(qrParamId, "pages/home/home");
+        //压缩图片
         Thumbnails.of(inputStream).scale(0.8).outputQuality(1f).toFile(new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
         //IOUtils.toFile(inputStream, new File("/home/images/tmpQrParam/" + qrParamId + ".png"));
         log.info("生成体验码的信息为:[{}]", tmpQrcode);
         tmpQrcodeService.save(tmpQrcode);
-        poolExecutor.execute(new AddImageTask(tmpQrcode.getQrParam(),tmpQrcodeService));
+        log.info("添加任务到队列:[{}]", tmpQrcode.getQrParam());
+        SysDeleteData.addImageData(tmpQrcode.getQrParam(),tmpQrcodeService);
         return tmpQrcode;
     }
 
