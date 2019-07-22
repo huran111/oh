@@ -2,6 +2,7 @@ package com.tykj.wx.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.jfinal.aop.Duang;
 import com.jfinal.weixin.sdk.utils.IOUtils;
 import com.jfinal.wxaapp.api.WxaAccessTokenApi;
@@ -13,12 +14,15 @@ import com.tykj.exception.BusinessException;
 import com.tykj.utils.UUIDUtils;
 import com.tykj.utils.WxUtils;
 import com.tykj.wx.dto.UserInfoDTO;
+import com.tykj.wx.entity.Qrcode;
 import com.tykj.wx.entity.TmpQrcode;
+import com.tykj.wx.service.IQrcodeService;
 import com.tykj.wx.service.ITmpQrcodeService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tykj.core.web.BaseController;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +59,8 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private ITmpQrcodeService tmpQrcodeService;
+    @Resource
+    private IQrcodeService qrcodeService;
 
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
     @PostMapping(value = "/generateTmpQr")
@@ -86,9 +94,21 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
     @GetMapping(value = "toViewQrParam")
     public ApiResponse toViewQrParam(@RequestParam(value = "openId") String openId) throws Exception {
         log.info("查看我的挪车码:[{}]:" + openId);
-        QueryWrapper<TmpQrcode> qrcodeQueryWrapper = new QueryWrapper<>();
-        qrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
-        List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(qrcodeQueryWrapper);
+        //正式挪车码
+        QueryWrapper<Qrcode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Qrcode::getOpenId, openId);
+        List<Qrcode> qrcodes = qrcodeService.list(queryWrapper);
+        //体验挪车码
+        QueryWrapper<TmpQrcode> tmpQrcodeQueryWrapper = new QueryWrapper<>();
+        tmpQrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
+        List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(tmpQrcodeQueryWrapper);
+        if (CollectionUtils.isNotEmpty(qrcodes)) {
+            qrcodes.forEach(data -> {
+                TmpQrcode tmpQrcode = new TmpQrcode();
+                BeanUtils.copyProperties(data, tmpQrcode);
+                tmpQrcodes.add(tmpQrcode);
+            });
+        }
         if (CollectionUtils.isNotEmpty(tmpQrcodes)) {
             return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcodes);
         }
