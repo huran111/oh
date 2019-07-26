@@ -147,11 +147,7 @@ public class QrcodeController extends Controller {
         return apiResponse;
     }
 
-    @GetMapping(value = "aaaa")
 
-    public void aaaa() {
-        this.queue.offer("a");
-    }
 
     @PostConstruct
     public void initListenQueue() {
