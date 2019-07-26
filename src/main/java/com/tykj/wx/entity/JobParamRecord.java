@@ -1,6 +1,7 @@
 package com.tykj.wx.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tykj.core.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -30,7 +31,11 @@ public class JobParamRecord extends BaseEntity {
     /**
      * job生成的线下二维码记录
      */
+    @TableField("directory")
     private String directory;
-
-
+    /**
+     * 是否移动过
+     */
+    @TableField("flag")
+    private Integer flag;
 }
