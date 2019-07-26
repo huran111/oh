@@ -1,12 +1,18 @@
 package com.tykj.job;
+
 import com.dangdang.ddframe.job.api.JobExecutionMultipleShardingContext;
 import com.dangdang.ddframe.job.plugin.job.type.simple.AbstractSimpleElasticJob;
+import com.google.common.collect.Lists;
 import com.jfinal.aop.Duang;
 import com.jfinal.wxaapp.WxaConfig;
 import com.jfinal.wxaapp.WxaConfigKit;
 import com.jfinal.wxaapp.api.WxaQrcodeApi;
+import com.tykj.utils.UUIDUtils;
+import com.tykj.wx.entity.JobParamRecord;
 import com.tykj.wx.properties.WxProperties;
+import com.tykj.wx.service.IJobParamRecordService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +22,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,16 +36,18 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class GenerateImagesJob extends AbstractSimpleElasticJob {
     @Autowired
-    StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
     @Autowired
-    WxProperties wxProperties;
+    private WxProperties wxProperties;
+    @Autowired
+    private IJobParamRecordService jobParamRecordService;
     private static int imageSize = 2000;
-
+    //保存生成的二维码路径
+    private List<String> tempList = Lists.newCopyOnWriteArrayList();
     final static String redisKey = "sharding:context:images";
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-    CompletionService<Long> completionService = new ExecutorCompletionService<Long>(
-            executor);
+    private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    private CompletionService<List> completionService = new ExecutorCompletionService<List>(executor);
 
     @Override
     public void process(JobExecutionMultipleShardingContext shardingContext) {
@@ -55,34 +63,87 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
             try {
                 FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
-
-                log.info("生成二维码到指定目录");
-                for (int i = 0; i < imageSize; i++) {
+                //生成二维码到指定目录
+                this.generateQrcode(imageSize, completionService, wxaQrcodeApi1, dey, atomicLong);
+                //等待线程执行完毕
+                tempList = this.waitGenerateQrcode(imageSize, completionService);
+                if (CollectionUtils.isNotEmpty(tempList)) {
+                    //保存到redis
                     try {
-                        //生成二维码到指定目录
-                        completionService.submit(new ImagesTask(wxaQrcodeApi1, dey, atomicLong));
+                        tempList.stream().forEach(x -> {
+                            stringRedisTemplate.opsForValue().set(x, x);
+                        });
                     } catch (Exception e) {
-                        log.info("生成二维码到指定目录:[{}]", e.getCause());
+                        log.error("Job生成二维码保存到redis异常", e.getMessage());
+                    }
+                    //保存到数据库
+                    try {
+                        List<JobParamRecord> list = Lists.newArrayListWithCapacity(2000);
+                        tempList.stream().forEach(x -> {
+                            JobParamRecord jobParamRecord = new JobParamRecord();
+                            jobParamRecord.setId(UUIDUtils.getUUID()).setId(x);
+                            list.add(jobParamRecord);
+                        });
+                        jobParamRecordService.saveBatch(list);
+                    } catch (Exception e) {
+                        log.error("Job生成二维码保存到数据库异常", e.getMessage());
                     }
                 }
-                for (int i = 0; i < imageSize; i++) {
-                    try {
-                        completionService.take().get();
-                    } catch (Exception e) {
-                        log.info("生成二维码到指定目录:[{}]", e.getCause());
-                    }
-                }
-                log.info("任务完成,生成二二维码数量：[{}]", atomicLong.get());
-                executor.shutdown();
+                log.info("任务完成,生成二二维码数量：[{}]", tempList.size());
                 stringRedisTemplate.opsForValue().set(redisKey, "1", 1L, TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.info(e.getMessage());
                 e.printStackTrace();
+            } finally {
+                executor.shutdown();
+                tempList.clear();
             }
         } else {
             log.info("请稍后再试....");
         }
 
+    }
+
+
+    /**
+     * 等待线程执行完毕
+     *
+     * @param imageSize         次数
+     * @param completionService 线程池
+     * @return List
+     */
+    private List<String> waitGenerateQrcode(int imageSize, CompletionService<List> completionService) {
+        List list = Lists.newArrayListWithCapacity(1);
+        for (int i = 0; i < imageSize; i++) {
+            try {
+                list.addAll(completionService.take().get());
+            } catch (Exception e) {
+                log.info("生成二维码到指定目录:[{}]", e.getCause());
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 生成二维码到指定目录
+     *
+     * @param imageSize         次数
+     * @param completionService 线程池
+     * @param wxaQrcodeApi1     wxApi
+     * @param dey               日期目录
+     * @param atomicLong        引用
+     */
+    private void generateQrcode(int imageSize, CompletionService<List> completionService, WxaQrcodeApi wxaQrcodeApi1,
+                                String dey, AtomicLong atomicLong) {
+        log.info("生成二维码到指定目录");
+        for (int i = 0; i < imageSize; i++) {
+            try {
+                //生成二维码到指定目录
+                completionService.submit(new ImagesTask(wxaQrcodeApi1, dey, atomicLong));
+            } catch (Exception e) {
+                log.info("生成二维码到指定目录:[{}]", e.getCause());
+            }
+        }
     }
 
 }
