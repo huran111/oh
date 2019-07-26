@@ -9,6 +9,13 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * @author 胡冉
+ * @ClassName MoveQrParamThread
+ * @Description: 监听队列
+ * @Date 2019/7/26 19:23
+ * @Version 2.0
+ */
 @Slf4j
 public class ListenQueueThread extends Thread {
     private LinkedBlockingQueue queue;

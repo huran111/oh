@@ -19,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * @author 胡冉
  * @ClassName MoveQrParamThread
- * @Description: 移动二维码到指定目录线程
+ * @Description: 移动二维码到指定目录-线程
  * @Date 2019/7/26 19:23
  * @Version 2.0
  */
@@ -82,7 +82,7 @@ public class MoveQrParamThread extends Thread {
         Path targatPath = Paths.get(this.SOURCE_URL + "/" + png);
         try {
             Files.copy(sourcePath, targatPath);
-            stringRedisTemplate.opsForValue().set(directory, "2");
+            this.stringRedisTemplate.opsForValue().set(directory, "2");
             //保存到队列
             if (var) {
                 boolean flag = this.queue.offer(directory);

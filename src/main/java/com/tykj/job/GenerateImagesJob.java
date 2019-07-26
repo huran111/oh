@@ -66,9 +66,9 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                 //生成二维码到指定目录
                 this.generateQrcode(imageSize, this.completionService, wxaQrcodeApi1, dey, atomicLong);
                 //等待线程执行完毕
-                tempList = this.waitGenerateQrcode(this.imageSize, this.completionService);
+                this.tempList = this.waitGenerateQrcode(this.imageSize, this.completionService);
                 if (CollectionUtils.isNotEmpty(this.tempList)) {
-                    //保存到redis
+                    //将图片生成的目录路径保存到数据库-reids
                     try {
                         this.tempList.stream().forEach(x -> {
                             this.stringRedisTemplate.opsForValue().set(x, "1");
@@ -76,13 +76,13 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                     } catch (Exception e) {
                         log.error("Job生成二维码保存到redis异常", e.getMessage());
                     }
-                    //保存到数据库
+                    // 将图片生成的目录路径保存到数据库-DB
                     try {
                         List<JobParamRecord> list = Lists.newArrayListWithCapacity(2000);
-                        tempList.stream().forEach(x -> {
+                        this.tempList.stream().forEach(x -> {
                             JobParamRecord jobParamRecord = new JobParamRecord();
                             jobParamRecord.setId(UUIDUtils.getUUID()).setDirectory(x)
-                            .setFlag(1);
+                                    .setFlag(1);
                             list.add(jobParamRecord);
                         });
                         this.jobParamRecordService.saveBatch(list);
