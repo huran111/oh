@@ -41,7 +41,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
     private WxProperties wxProperties;
     @Autowired
     private IJobParamRecordService jobParamRecordService;
-    private static int imageSize = 2000;
+    private static int imageSize = 10;
     //保存生成的二维码路径
     private List<String> tempList = Lists.newCopyOnWriteArrayList();
     final static String redisKey = "sharding:context:images";
