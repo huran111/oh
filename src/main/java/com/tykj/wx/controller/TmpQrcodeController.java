@@ -2,17 +2,9 @@ package com.tykj.wx.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.Lists;
-import com.jfinal.aop.Duang;
-import com.jfinal.weixin.sdk.utils.IOUtils;
-import com.jfinal.wxaapp.api.WxaAccessTokenApi;
-import com.jfinal.wxaapp.api.WxaQrcodeApi;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
-import com.tykj.common.SysConstant;
 import com.tykj.exception.BusinessException;
-import com.tykj.utils.UUIDUtils;
-import com.tykj.utils.WxUtils;
 import com.tykj.wx.dto.UserInfoDTO;
 import com.tykj.wx.entity.Qrcode;
 import com.tykj.wx.entity.TmpQrcode;
@@ -24,22 +16,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.tykj.core.web.BaseController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -62,9 +47,19 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
     @Resource
     private IQrcodeService qrcodeService;
 
+
+    /**
+     * 生成体验码
+     *
+     * @param userInfoDTO   用户信息
+     * @param bindingResult 校验
+     * @return
+     * @throws Exception
+     */
     @ApiOperation(value = "生成体验码-体验", notes = "生成体验码-体验")
     @PostMapping(value = "/generateTmpQr")
-    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws Exception {
+    public ApiResponse generateTmpQr(@RequestBody @Valid UserInfoDTO userInfoDTO, BindingResult bindingResult) throws
+            Exception {
         log.info("生成体验码:" + userInfoDTO.toString());
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().stream().forEach(fieldError -> {
@@ -79,8 +74,7 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
         }
 
         TmpQrcode tmpQrcode = tmpQrcodeService.deleteOpenIdAndSaveTmpQrCode(userInfoDTO);
-        stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit
-                .MINUTES);
+        stringRedisTemplate.opsForValue().set(userInfoDTO.getOpenId(), tmpQrcode.getQrParam(), 5L, TimeUnit.MINUTES);
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, tmpQrcode);
     }
 
@@ -103,6 +97,7 @@ public class TmpQrcodeController /*extends BaseController<ITmpQrcodeService, Tmp
         tmpQrcodeQueryWrapper.lambda().eq(TmpQrcode::getOpenId, openId);
         List<TmpQrcode> tmpQrcodes = tmpQrcodeService.list(tmpQrcodeQueryWrapper);
         if (CollectionUtils.isNotEmpty(qrcodes)) {
+            //添加正式二维码到临时二维码集合里面
             qrcodes.forEach(data -> {
                 TmpQrcode tmpQrcode = new TmpQrcode();
                 BeanUtils.copyProperties(data, tmpQrcode);
