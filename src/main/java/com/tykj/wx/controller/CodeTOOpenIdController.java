@@ -21,10 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class CodeTOOpenIdController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * code转OPENID
+     *
+     * @param code wxCode
+     * @return ApiResponse
+     * @throws Exception
+     */
     @GetMapping(value = "/codeToOpenId")
-    public ApiResponse codeToOpenId(@RequestParam(value = "code") String code)  throws Exception{
+    public ApiResponse codeToOpenId(@RequestParam(value = "code") String code) throws Exception {
         LoginSessionKeyDTO loginSessionKeyDTO = WxUtils.getOpenId(code).getData();
-        stringRedisTemplate.opsForValue().set(String.format("%s:%s","sessionKey",loginSessionKeyDTO.getOpenid()),loginSessionKeyDTO.getSession_key());
+        stringRedisTemplate.opsForValue().set(String.format("%s:%s", "sessionKey", loginSessionKeyDTO.getOpenid()),
+                loginSessionKeyDTO.getSession_key());
         return new ApiResponse(ApiCode.REQUEST_SUCCESS, loginSessionKeyDTO);
     }
 }

@@ -34,9 +34,11 @@ import java.util.List;
 @RequestMapping("/rest/wx/qrcoderecord")
 public class QrcodeRecordController extends BaseController<IQrcodeRecordService, QrcodeRecord> {
     @Autowired
-    ITmpqrcodeRecordService tmpqrcodeRecordService;
+    private ITmpqrcodeRecordService tmpqrcodeRecordService;
     @Autowired
-    IQrcodeRecordService qrcodeRecordService;
+    private IQrcodeRecordService qrcodeRecordService;
+
+    @Deprecated
     @ApiOperation(value = "查看挪车记录", notes = "查看挪车记录")
     @GetMapping(value = "viewRecord")
     public ApiResponse viewRecord(@RequestParam(value = "qrParam") String qrParam) {
@@ -44,17 +46,17 @@ public class QrcodeRecordController extends BaseController<IQrcodeRecordService,
             List<TmpqrcodeRecord> qrcodeRecords = tmpqrcodeRecordService.list(new QueryWrapper<TmpqrcodeRecord>()
                     .lambda().eq(TmpqrcodeRecord::getQrParam, qrParam));
             if (CollectionUtils.isNotEmpty(qrcodeRecords)) {
-              return   new ApiResponse<>(ApiCode.REQUEST_SUCCESS, qrcodeRecords);
-            }else {
-                return   new ApiResponse<>(ApiCode.REQUEST_SUCCESS, new ArrayList<>());
+                return new ApiResponse<>(ApiCode.REQUEST_SUCCESS, qrcodeRecords);
+            } else {
+                return new ApiResponse<>(ApiCode.REQUEST_SUCCESS, new ArrayList<>());
             }
         } else {
-            List<QrcodeRecord> qrcodeRecords = qrcodeRecordService.list(new QueryWrapper<QrcodeRecord>()
-                    .lambda().eq(QrcodeRecord::getQrParam, qrParam));
+            List<QrcodeRecord> qrcodeRecords = qrcodeRecordService.list(new QueryWrapper<QrcodeRecord>().lambda().eq
+                    (QrcodeRecord::getQrParam, qrParam));
             if (CollectionUtils.isNotEmpty(qrcodeRecords)) {
-                return   new ApiResponse<>(ApiCode.REQUEST_SUCCESS, qrcodeRecords);
-            }else {
-                return   new ApiResponse<>(ApiCode.REQUEST_SUCCESS, new ArrayList<>());
+                return new ApiResponse<>(ApiCode.REQUEST_SUCCESS, qrcodeRecords);
+            } else {
+                return new ApiResponse<>(ApiCode.REQUEST_SUCCESS, new ArrayList<>());
             }
         }
     }

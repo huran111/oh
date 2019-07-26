@@ -1,18 +1,11 @@
 package com.tykj.wx.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import com.tykj.wx.entity.JobParamRecord;
 import com.tykj.wx.service.IJobParamRecordService;
-
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tykj.core.web.BaseController;
-import java.util.List;
 
 /**
 * <p>
