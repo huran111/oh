@@ -41,49 +41,58 @@ public class MoveQrParamThread extends Thread {
 
     @Override
     public void run() {
-        Set<String> stringSet =  this.stringRedisTemplate.keys(String.format("%s*", qrParam));
+        Set<String> stringSet = this.stringRedisTemplate.keys(String.format("%s*", qrParam));
         if (CollectionUtils.isNotEmpty(stringSet)) {
             for (String directory : stringSet) {
-                String values =  this.stringRedisTemplate.opsForValue().get(directory);
+                String values = this.stringRedisTemplate.opsForValue().get(directory);
                 if (StringUtils.isNotEmpty(values) && values.equals("1")) {
-                    this.moveFile( this.stringRedisTemplate, directory);
+                    this.moveFileOrUpdateDb(this.stringRedisTemplate, directory, true);
                 }
             }
         } else {
-            List<JobParamRecord> jobParamRecordList =  this.jobParamRecordService.list(new QueryWrapper<JobParamRecord>().lambda()
-                    .like(JobParamRecord::getDirectory,  this.qrParam).eq(JobParamRecord::getFlag, 1));
+            List<JobParamRecord> jobParamRecordList = this.jobParamRecordService.list(new QueryWrapper<JobParamRecord>().lambda()
+                    .like(JobParamRecord::getDirectory, this.qrParam).eq(JobParamRecord::getFlag, 1));
             if (CollectionUtils.isNotEmpty(jobParamRecordList)) {
                 jobParamRecordList.forEach(x -> {
-                    this.moveFile( this.stringRedisTemplate, x.getDirectory());
-                    x.setFlag(2);
-                    this.jobParamRecordService.saveOrUpdate(x);
+                    this.moveFileOrUpdateDb(this.stringRedisTemplate, x.getDirectory(), true);
                 });
             }
         }
     }
 
+
     /**
-     * 移动文件
+     *
      *
      * @param stringRedisTemplate
      * @param directory
      */
-    private void moveFile(StringRedisTemplate stringRedisTemplate, String directory) {
+    /**
+     * 移动文件
+     *
+     * @param stringRedisTemplate reds工具类
+     * @param directory           目录
+     * @param var                 true添加队列 false不添加队列
+     */
+    private void moveFileOrUpdateDb(StringRedisTemplate stringRedisTemplate, String directory, boolean var) {
         String[] keys = directory.split("-");
         String png = keys[0];
         String day = keys[1];
-        Path sourcePath = Paths.get(String.format("%s/%s/%s",  this.SOURCE_URL, day, png));
-        Path targatPath = Paths.get( this.SOURCE_URL + "/" + png);
+        Path sourcePath = Paths.get(String.format("%s/%s/%s", this.SOURCE_URL, day, png));
+        Path targatPath = Paths.get(this.SOURCE_URL + "/" + png);
         try {
             Files.copy(sourcePath, targatPath);
             stringRedisTemplate.opsForValue().set(directory, "2");
             //保存到队列
-            boolean flag = this.queue.offer(directory);
-            if (flag) {
-               log.info("添加队列成功:[{}]", directory);
-            } else {
-                log.info("添加队列失败:[{}]", directory);
+            if (var) {
+                boolean flag = this.queue.offer(directory);
+                if (flag) {
+                    log.info("添加队列成功:[{}]", directory);
+                } else {
+                    log.info("队列已经满了:[{}]", directory);
+                }
             }
+
         } catch (IOException e) {
             log.error("Copy File Exception :[{}],[{}]", sourcePath, e.getMessage());
         }
