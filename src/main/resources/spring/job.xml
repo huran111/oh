@@ -18,6 +18,6 @@
     <job:simple id="generateImagesJob"
                 class="com.tykj.job.GenerateImagesJob"
                 registry-center-ref="regCenter" cron="0 30 0 * * ?"
-                sharding-total-count="1" misfire="false" description="生成二维码每次100张(10分钟后可再次点击)" overwrite="true"/>
+                sharding-total-count="1" misfire="false" description="生成二维码每次2000张(别乱点，5分钟后可再次点击)" overwrite="true"/>
 
 </beans>
