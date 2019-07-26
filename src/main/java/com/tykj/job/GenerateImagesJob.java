@@ -53,10 +53,10 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
     public void process(JobExecutionMultipleShardingContext shardingContext) {
         AtomicLong atomicLong = new AtomicLong(0);
         WxaConfig wxaConfig = new WxaConfig();
-        wxaConfig.setAppId(wxProperties.getAppId());
-        wxaConfig.setAppSecret(wxProperties.getAppSecret());
+        wxaConfig.setAppId(this.wxProperties.getAppId());
+        wxaConfig.setAppSecret(this.wxProperties.getAppSecret());
         WxaConfigKit.setWxaConfig(wxaConfig);
-        String id = stringRedisTemplate.opsForValue().get(redisKey);
+        String id = this.stringRedisTemplate.opsForValue().get(this.redisKey);
         if (StringUtils.isEmpty(id)) {
             log.info("任务开始.........");
             String dey = sdf.format(new Date());
@@ -64,14 +64,14 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                 FileUtils.forceMkdir(new File("/home/images/qrParam/" + dey));
                 WxaQrcodeApi wxaQrcodeApi1 = Duang.duang(WxaQrcodeApi.class);
                 //生成二维码到指定目录
-                this.generateQrcode(imageSize, completionService, wxaQrcodeApi1, dey, atomicLong);
+                this.generateQrcode(imageSize, this.completionService, wxaQrcodeApi1, dey, atomicLong);
                 //等待线程执行完毕
-                tempList = this.waitGenerateQrcode(imageSize, completionService);
-                if (CollectionUtils.isNotEmpty(tempList)) {
+                tempList = this.waitGenerateQrcode(this.imageSize, this.completionService);
+                if (CollectionUtils.isNotEmpty(this.tempList)) {
                     //保存到redis
                     try {
-                        tempList.stream().forEach(x -> {
-                            stringRedisTemplate.opsForValue().set(x, "1");
+                        this.tempList.stream().forEach(x -> {
+                            this.stringRedisTemplate.opsForValue().set(x, "1");
                         });
                     } catch (Exception e) {
                         log.error("Job生成二维码保存到redis异常", e.getMessage());
@@ -85,19 +85,19 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                             .setFlag(1);
                             list.add(jobParamRecord);
                         });
-                        jobParamRecordService.saveBatch(list);
+                        this.jobParamRecordService.saveBatch(list);
                     } catch (Exception e) {
                         log.error("Job生成二维码保存到数据库异常", e.getMessage());
                     }
                 }
-                log.info("任务完成,生成二二维码数量：[{}]", tempList.size());
-                stringRedisTemplate.opsForValue().set(redisKey, "1", 1L, TimeUnit.MINUTES);
+                log.info("任务完成,生成二二维码数量：[{}]", this.tempList.size());
+                this.stringRedisTemplate.opsForValue().set(this.redisKey, "1", 5L, TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.info(e.getMessage());
                 e.printStackTrace();
             } finally {
-                executor.shutdown();
-                tempList.clear();
+                this.executor.shutdown();
+                this.tempList.clear();
             }
         } else {
             log.info("请稍后再试....");
