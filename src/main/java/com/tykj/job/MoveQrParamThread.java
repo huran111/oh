@@ -1,8 +1,20 @@
 package com.tykj.job;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tykj.wx.entity.JobParamRecord;
 import com.tykj.wx.service.IJobParamRecordService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author 胡冉
@@ -16,16 +28,64 @@ public class MoveQrParamThread extends Thread {
     private StringRedisTemplate stringRedisTemplate;
     private IJobParamRecordService jobParamRecordService;
     private String qrParam;
+    private LinkedBlockingQueue queue;
+    private static final String SOURCE_URL = "/home/images/qrParam";
 
     public MoveQrParamThread(String qrParam, StringRedisTemplate stringRedisTemplate, IJobParamRecordService
-            jobParamRecordService) {
+            jobParamRecordService, LinkedBlockingQueue queue) {
         this.stringRedisTemplate = stringRedisTemplate;
         this.jobParamRecordService = jobParamRecordService;
         this.qrParam = qrParam;
+        this.queue = queue;
     }
 
     @Override
     public void run() {
+        Set<String> stringSet =  this.stringRedisTemplate.keys(String.format("%s*", qrParam));
+        if (CollectionUtils.isNotEmpty(stringSet)) {
+            for (String directory : stringSet) {
+                String values =  this.stringRedisTemplate.opsForValue().get(directory);
+                if (StringUtils.isNotEmpty(values) && values.equals("1")) {
+                    this.moveFile( this.stringRedisTemplate, directory);
+                }
+            }
+        } else {
+            List<JobParamRecord> jobParamRecordList =  this.jobParamRecordService.list(new QueryWrapper<JobParamRecord>().lambda()
+                    .like(JobParamRecord::getDirectory,  this.qrParam).eq(JobParamRecord::getFlag, 1));
+            if (CollectionUtils.isNotEmpty(jobParamRecordList)) {
+                jobParamRecordList.forEach(x -> {
+                    this.moveFile( this.stringRedisTemplate, x.getDirectory());
+                    x.setFlag(2);
+                    this.jobParamRecordService.saveOrUpdate(x);
+                });
+            }
+        }
+    }
 
+    /**
+     * 移动文件
+     *
+     * @param stringRedisTemplate
+     * @param directory
+     */
+    private void moveFile(StringRedisTemplate stringRedisTemplate, String directory) {
+        String[] keys = directory.split("-");
+        String png = keys[0];
+        String day = keys[1];
+        Path sourcePath = Paths.get(String.format("%s/%s/%s",  this.SOURCE_URL, day, png));
+        Path targatPath = Paths.get( this.SOURCE_URL + "/" + png);
+        try {
+            Files.copy(sourcePath, targatPath);
+            stringRedisTemplate.opsForValue().set(directory, "2");
+            //保存到队列
+            boolean flag = this.queue.offer(directory);
+            if (flag) {
+               log.info("添加队列成功:[{}]", directory);
+            } else {
+                log.info("添加队列失败:[{}]", directory);
+            }
+        } catch (IOException e) {
+            log.error("Copy File Exception :[{}],[{}]", sourcePath, e.getMessage());
+        }
     }
 }

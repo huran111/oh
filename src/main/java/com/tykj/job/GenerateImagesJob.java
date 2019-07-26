@@ -71,7 +71,7 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                     //保存到redis
                     try {
                         tempList.stream().forEach(x -> {
-                            stringRedisTemplate.opsForValue().set(x, x);
+                            stringRedisTemplate.opsForValue().set(x, "1");
                         });
                     } catch (Exception e) {
                         log.error("Job生成二维码保存到redis异常", e.getMessage());
@@ -81,7 +81,8 @@ public class GenerateImagesJob extends AbstractSimpleElasticJob {
                         List<JobParamRecord> list = Lists.newArrayListWithCapacity(2000);
                         tempList.stream().forEach(x -> {
                             JobParamRecord jobParamRecord = new JobParamRecord();
-                            jobParamRecord.setId(UUIDUtils.getUUID()).setId(x);
+                            jobParamRecord.setId(UUIDUtils.getUUID()).setDirectory(x)
+                            .setFlag(1);
                             list.add(jobParamRecord);
                         });
                         jobParamRecordService.saveBatch(list);

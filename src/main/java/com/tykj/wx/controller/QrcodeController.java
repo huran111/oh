@@ -5,6 +5,7 @@ import com.jfinal.core.Controller;
 import com.tykj.common.ApiCode;
 import com.tykj.common.ApiResponse;
 import com.tykj.exception.BusinessException;
+import com.tykj.job.ListenQueueThread;
 import com.tykj.job.MoveQrParamThread;
 import com.tykj.wx.dto.UserInfoDTO;
 
@@ -19,11 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -45,6 +44,10 @@ public class QrcodeController extends Controller {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private IJobParamRecordService jobParamRecordService;
+    //监听队列的线程
+    private static ListenQueueThread workThread = null;
+    //保存移动记录
+    private static volatile LinkedBlockingQueue queue = new LinkedBlockingQueue(1000);
     //移动二维码线程池
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors()
             , Runtime.getRuntime().availableProcessors() * 2, 0L, TimeUnit.MILLISECONDS, new
@@ -63,7 +66,8 @@ public class QrcodeController extends Controller {
             });
             return t;
         }
-    }) {};
+    }) {
+    };
 
     /**
      * 判断用户是否绑定二维码信息
@@ -104,7 +108,7 @@ public class QrcodeController extends Controller {
         try {
             apiResponse = this.tmpQrcodeService.editOrSave(userInfoDTO);
             this.threadPoolExecutor.execute(new MoveQrParamThread(userInfoDTO.getQrParam(), this.stringRedisTemplate,
-                    this.jobParamRecordService));
+                    this.jobParamRecordService, queue));
         } catch (Exception e) {
             log.error("绑定用户信息异常[{}]", e.getMessage());
         }
@@ -141,6 +145,20 @@ public class QrcodeController extends Controller {
         log.info("删除体验码参数:[{}],[{}]", qrParam, openId);
         ApiResponse apiResponse = this.tmpQrcodeService.deleteTmpQr(qrParam, openId);
         return apiResponse;
+    }
+
+    @GetMapping(value = "aaaa")
+
+    public void aaaa() {
+        this.queue.offer("a");
+    }
+
+    @PostConstruct
+    public void initListenQueue() {
+        this.workThread = new ListenQueueThread(this.queue,this.jobParamRecordService);
+        this.workThread.setDaemon(true);
+        this.workThread.setName("监听队列Thread");
+        this.workThread.start();
 
     }
 }
