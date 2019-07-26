@@ -5,7 +5,6 @@ import com.tykj.wx.entity.JobParamRecord;
 import com.tykj.wx.service.IJobParamRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,12 +24,12 @@ public class ListenQueueThread extends Thread {
         log.info("监听队列开始...........");
         while (true) {
             try {
-                String d = (String)  this.queue.take();
-                System.out.println("===============" + d);
+                String d = (String) this.queue.take();
+                log.info("线程[{}]更新数据库[{}]", Thread.currentThread().getName(), d);
                 List<JobParamRecord> jobParamRecordList = this.jobParamRecordService.list(new QueryWrapper<JobParamRecord>()
                         .lambda().eq(JobParamRecord::getDirectory, d));
-                if(CollectionUtils.isNotEmpty(jobParamRecordList)){
-                    jobParamRecordList.stream().forEach(x->{
+                if (CollectionUtils.isNotEmpty(jobParamRecordList)) {
+                    jobParamRecordList.stream().forEach(x -> {
                         x.setFlag(2);
                         this.jobParamRecordService.saveOrUpdate(x);
                     });

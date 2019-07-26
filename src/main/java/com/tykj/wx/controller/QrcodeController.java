@@ -45,7 +45,7 @@ public class QrcodeController extends Controller {
     @Autowired
     private IJobParamRecordService jobParamRecordService;
     //监听队列的线程
-    private static ListenQueueThread workThread = null;
+    private static ListenQueueThread listenQueueThread = null;
     //保存移动记录
     private static volatile LinkedBlockingQueue queue = new LinkedBlockingQueue(1000);
     //移动二维码线程池
@@ -148,13 +148,15 @@ public class QrcodeController extends Controller {
     }
 
 
-
+    /**
+     * 初始化监听队列
+     */
     @PostConstruct
     public void initListenQueue() {
-        this.workThread = new ListenQueueThread(this.queue,this.jobParamRecordService);
-        this.workThread.setDaemon(true);
-        this.workThread.setName("监听队列Thread");
-        this.workThread.start();
+        this.listenQueueThread = new ListenQueueThread(this.queue,this.jobParamRecordService);
+        this.listenQueueThread.setDaemon(true);
+        this.listenQueueThread.setName("监听队列Thread");
+        this.listenQueueThread.start();
 
     }
 }
