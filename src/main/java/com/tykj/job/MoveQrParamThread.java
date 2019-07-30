@@ -78,8 +78,8 @@ public class MoveQrParamThread extends Thread {
         String[] keys = directory.split("-");
         String png = keys[0];
         String day = keys[1];
-        Path sourcePath = Paths.get(String.format("%s/%s/%s", this.SOURCE_URL, day, png));
-        Path targatPath = Paths.get(this.SOURCE_URL + "/" + png);
+        Path sourcePath = Paths.get(String.format("%s/%s/%s", SOURCE_URL, day, png));
+        Path targatPath = Paths.get(SOURCE_URL + "/" + png);
         try {
             Files.copy(sourcePath, targatPath);
             this.stringRedisTemplate.opsForValue().set(directory, "2");
