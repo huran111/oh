@@ -66,8 +66,7 @@ public class QrcodeController extends Controller {
             });
             return t;
         }
-    }) {
-    };
+    }) {};
 
     /**
      * 判断用户是否绑定二维码信息
@@ -153,10 +152,14 @@ public class QrcodeController extends Controller {
      */
     @PostConstruct
     public void initListenQueue() {
-        this.listenQueueThread = new ListenQueueThread(this.queue,this.jobParamRecordService);
-        this.listenQueueThread.setDaemon(true);
-        this.listenQueueThread.setName("监听队列Thread");
-        this.listenQueueThread.start();
+        listenQueueThread = new ListenQueueThread(queue, this.jobParamRecordService);
+        listenQueueThread.setDaemon(true);
+        listenQueueThread.setName("监听队列Thread");
+        listenQueueThread.setUncaughtExceptionHandler((thread,e)->{
+            log.info("当前线程为:{}",thread);
+            log.info("异常为:{}",e.getMessage());
+        });
+        listenQueueThread.start();
 
     }
 }
