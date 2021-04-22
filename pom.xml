@@ -12,7 +12,7 @@
     <properties>
         <fastjson.version>1.2.29</fastjson.version>
         <java.version>1.8</java.version>
-        <shiro.version>1.4.0</shiro.version>
+        <shiro.version>1.7.0</shiro.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <elastic-job.version>1.1.1</elastic-job.version>
 
